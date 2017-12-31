@@ -42,7 +42,7 @@ def __process_response(response):
         )
     else:
         # We /should/ get one of the above error codes. If not, raise an error.
-        raise NotImplementedError("Returned HTTP status code of " + response.status_code + " was not expected.")
+        raise NotImplementedError("Returned HTTP status code of " + str(response.status_code) + " was not expected.")
 
 
 def get_breaches(account=None, domain=None, truncate_response=False, include_unverified=False):
@@ -153,8 +153,13 @@ def is_password_breached(password=None, sha1_hash=None):
     :param sha1_hash: The SHA1 hash of the password to check.
     :return: True if the password was in the HIBP password corpus, otherwise False.
     """
-    if not isinstance(password, six.text_type) or not isinstance(sha1_hash, six.text_type):
-        raise AttributeError("Either a password or SHA1 hash must be provides as a string.")
+    if password is None and sha1_hash is None:
+        raise AttributeError("You must provide either a password or sha1_hash")
+    elif password is not None and not isinstance(password, six.text_type):
+        raise AttributeError("The provided password is not a string")
+    elif sha1_hash is not None and not isinstance(sha1_hash, six.text_type):
+        raise AttributeError("The provided sha1_hash is not a string")
+
     if password and sha1_hash:
         if hashlib.sha1(password.encode('utf-8')).hexdigest() != sha1_hash.lower():
             raise AttributeError("A password and SHA1 hash were supplied (only one is needed), but they did not match")

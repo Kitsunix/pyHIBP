@@ -119,7 +119,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=find_packages(),  # Required
+    packages=find_packages(exclude=['test']),  # Required
 
     # Package directory
     package_dir={'': 'src'},
