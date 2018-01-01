@@ -57,13 +57,15 @@ def get_breaches(account=None, domain=None, truncate_response=False, include_unv
     :param truncate_response: If ``account`` is specified, truncates the response down to the breach names.
     Does not truncate response if ``account`` is left as None. Default False.
     :param include_unverified: If set to True, unverified breaches are included in the result. Default False.
-    :return: The decoded JSON information about the breach if the breach was found, otherwise False.
+    :return: A list object containing one or more dict objects, based on the information being requested,
+    provided there was matching information. Boolean False returned if no information was found according to
+    the HIBP API.
     """
     # Account/Domain don't need to be specified, but they must be text if so.
     if account is not None and not isinstance(account, six.text_type):
-        raise AttributeError("<account> must be a string")
+        raise AttributeError("The account parameter, if specified, must be a string")
     if domain is not None and not isinstance(domain, six.text_type):
-        raise AttributeError("<domain> must be a string")
+        raise AttributeError("The domain parameter, if specified, must be a string")
 
     # Build the URI
     uri = HIBP_API_BASE_URI
@@ -95,10 +97,11 @@ def get_single_breach(breach_name=None):
     Returns a single breach's information from the HIBP's database.
 
     :param breach_name: The breach to retrieve. Required.
-    :return: The decoded JSON information about the breach if the breach was found, otherwise False.
+    :return: A dict object containing the information for the specified breach name, if it exists in the HIBP
+    database. Boolean False is returned if the specified breach was not found.
     """
     if not isinstance(breach_name, six.text_type):
-        raise AttributeError("breach_name must be specified")
+        raise AttributeError("The breach_name must be specified, and be a text string")
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
     headers = {'user-agent': pyHIBP_USERAGENT}
     resp = requests.get(uri, headers=headers)
@@ -112,10 +115,11 @@ def get_pastes(email_address=None):
     """
     Retrieve all pastes for a specified email address.
     :param email_address: The email address to search. Required.
-    :return: The decoded JSON information about any pastes if found, otherwise False.
+    :return: A list object containing one or more dict objects corresponding to the pastes the specified email
+    address was found in. Boolean False returned if no pastes are detected for the given account.
     """
     if not isinstance(email_address, six.text_type):
-        raise AttributeError("The email address supplied must be provided, and be a text string.")
+        raise AttributeError("The email address supplied must be provided, and be a text string")
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
     headers = {'user-agent': pyHIBP_USERAGENT}
     resp = requests.get(uri, headers=headers)
@@ -129,7 +133,8 @@ def get_data_classes():
     """
     Retrieves all available data classes from the HIBP API.
 
-    :return: Data classes decoded from JSON
+    :return: A list object containing available data classes, corresponding to attributes found in breaches.
+    A given breach will have one or more of the data classes in the list.
     """
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_DATA_CLASSES
     headers = {'user-agent': pyHIBP_USERAGENT}
@@ -164,6 +169,7 @@ def is_password_breached(password=None, sha1_hash=None):
         if hashlib.sha1(password.encode('utf-8')).hexdigest() != sha1_hash.lower():
             raise AttributeError("A password and SHA1 hash were supplied (only one is needed), but they did not match")
     elif password and not sha1_hash:
+        # Only submit the SHA1 hash to the backend
         sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest()
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PWNED_PASSWORDS
