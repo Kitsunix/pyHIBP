@@ -15,7 +15,7 @@ HIBP_API_ENDPOINT_PWNED_PASSWORDS = "pwnedpassword"
 pyHIBP_USERAGENT = "pyHIBP: A Python Interface to the Public HIBP API"
 
 
-def __process_response(response):
+def _process_response(response):
     """
     Process the `requests` response from the call to the HIBP API endpoints.
     :param response: The response object from a call to `requests`
@@ -29,14 +29,14 @@ def __process_response(response):
         # The request was successful, though the item wasn't found
         return False
     elif response.status_code == 400:
-        # Bad request — the account does not comply with an acceptable format (i.e. it's an empty string)
+        # Bad request - The account does not comply with an acceptable format (i.e., it's an empty string)
         raise RuntimeError(
-            "HTTP 400 - Bad request — the account does not comply with an acceptable format (i.e. it's an empty string)")
+            "HTTP 400 - Bad request - The account does not comply with an acceptable format (i.e., it's an empty string)")
     elif response.status_code == 403:
-        # Forbidden — no user agent has been specified in the request
+        # Forbidden - no user agent has been specified in the request
         raise RuntimeError("HTTP 403 - User agent required for HIBP API requests, but no user agent was sent to the API endpoint")
     elif response.status_code == 429:
-        # Too many requests — the rate limit has been exceeded
+        # Too many requests - the rate limit has been exceeded
         raise RuntimeError(
             "HTTP 429 - Rate limit exceeded: API rate limit is 1500ms. Retry-After header was: " + response.headers['Retry-After']
         )
@@ -45,37 +45,29 @@ def __process_response(response):
         raise NotImplementedError("Returned HTTP status code of " + str(response.status_code) + " was not expected.")
 
 
-def get_breaches(account=None, domain=None, truncate_response=False, include_unverified=False):
+def get_account_breaches(account=None, domain=None, truncate_response=False, include_unverified=False):
     """
-    Gets breaches for a specified account, a specified domain, both, or neither.
-
-    If account and domain are not specified, all breaches in the HIBP database are returned. If
-    either (or both) are specified, then the returned results are restricted to the specified information.
+    Gets breaches for a specified account from the HIBP system, optionally restricting the returned results
+    to a specified domain.
 
     :param account: The user's account name (such as an email address or a user-name). Default None.
     :param domain: The domain to check for breaches. Default None.
     :param truncate_response: If ``account`` is specified, truncates the response down to the breach names.
-    Does not truncate response if ``account`` is left as None. Default False.
+    Default False.
     :param include_unverified: If set to True, unverified breaches are included in the result. Default False.
     :return: A list object containing one or more dict objects, based on the information being requested,
     provided there was matching information. Boolean False returned if no information was found according to
     the HIBP API.
     """
     # Account/Domain don't need to be specified, but they must be text if so.
-    if account is not None and not isinstance(account, six.text_type):
-        raise AttributeError("The account parameter, if specified, must be a string")
-    if domain is not None and not isinstance(domain, six.text_type):
+    if account is None or not isinstance(account, six.string_types):
+        raise AttributeError("The account parameter must be specified, and must be a string")
+    if domain is not None and not isinstance(domain, six.string_types):
         raise AttributeError("The domain parameter, if specified, must be a string")
 
     # Build the URI
-    uri = HIBP_API_BASE_URI
+    uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHED_ACCT + account
     headers = {'user-agent': pyHIBP_USERAGENT}
-    if account:
-        # Get a single account's breaches
-        uri += HIBP_API_ENDPOINT_BREACHED_ACCT + account
-    else:
-        # Get all breaches in the HIBP system
-        uri += HIBP_API_ENDPOINT_BREACHES
 
     # Build the query string payload (requests drops params when None)
     # (and the HIBP backend ignores those that don't apply)
@@ -85,8 +77,28 @@ def get_breaches(account=None, domain=None, truncate_response=False, include_unv
         "includeUnverified": include_unverified,
     }
     resp = requests.get(uri, params=query_string_payload, headers=headers)
-    print(resp.status_code)
-    if __process_response(response=resp):
+    if _process_response(response=resp):
+        return resp.json()
+    else:
+        return False
+
+
+def get_all_breaches(domain=None):
+    """
+    Returns a listing of all sites breached in the HIBP database.
+
+    :param domain: Optional, default None. If specified, get all breaches for the domain with the specified name.
+    :return: A list object containing one or more dict objects if breaches are present. Returns Boolean False
+    if ``domain`` is specified, but the resultant list would be length zero.
+    """
+    if domain is not None and not isinstance(domain, six.string_types):
+        raise AttributeError("The domain parameter, if specified, must be a string")
+    uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHES
+    headers = {'user-agent': pyHIBP_USERAGENT}
+    query_string_payload = {'domain': domain}
+    resp = requests.get(uri, params=query_string_payload, headers=headers)
+    # The API will return HTTP200 even if resp.json is length zero.
+    if _process_response(response=resp) and len(resp.json()) > 0:
         return resp.json()
     else:
         return False
@@ -100,12 +112,12 @@ def get_single_breach(breach_name=None):
     :return: A dict object containing the information for the specified breach name, if it exists in the HIBP
     database. Boolean False is returned if the specified breach was not found.
     """
-    if not isinstance(breach_name, six.text_type):
-        raise AttributeError("The breach_name must be specified, and be a text string")
+    if not isinstance(breach_name, six.string_types):
+        raise AttributeError("The breach_name must be specified, and be a string")
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
     headers = {'user-agent': pyHIBP_USERAGENT}
     resp = requests.get(uri, headers=headers)
-    if __process_response(resp):
+    if _process_response(resp):
         return resp.json()
     else:
         return False
@@ -118,12 +130,12 @@ def get_pastes(email_address=None):
     :return: A list object containing one or more dict objects corresponding to the pastes the specified email
     address was found in. Boolean False returned if no pastes are detected for the given account.
     """
-    if not isinstance(email_address, six.text_type):
-        raise AttributeError("The email address supplied must be provided, and be a text string")
+    if not isinstance(email_address, six.string_types):
+        raise AttributeError("The email address supplied must be provided, and be a string")
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
     headers = {'user-agent': pyHIBP_USERAGENT}
     resp = requests.get(uri, headers=headers)
-    if __process_response(response=resp):
+    if _process_response(response=resp):
         return resp.json()
     else:
         return False
@@ -139,7 +151,7 @@ def get_data_classes():
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_DATA_CLASSES
     headers = {'user-agent': pyHIBP_USERAGENT}
     resp = requests.get(uri, headers=headers)
-    if __process_response(response=resp):
+    if _process_response(response=resp):
         return resp.json()
     else:
         # This path really shouldn't return false
@@ -160,9 +172,9 @@ def is_password_breached(password=None, sha1_hash=None):
     """
     if password is None and sha1_hash is None:
         raise AttributeError("You must provide either a password or sha1_hash")
-    elif password is not None and not isinstance(password, six.text_type):
+    elif password is not None and not isinstance(password, six.string_types):
         raise AttributeError("The provided password is not a string")
-    elif sha1_hash is not None and not isinstance(sha1_hash, six.text_type):
+    elif sha1_hash is not None and not isinstance(sha1_hash, six.string_types):
         raise AttributeError("The provided sha1_hash is not a string")
 
     if password and sha1_hash:
@@ -177,4 +189,4 @@ def is_password_breached(password=None, sha1_hash=None):
     payload = {'Password': sha1_hash}
 
     resp = requests.post(uri, data=payload, headers=headers)
-    return __process_response(response=resp)
+    return _process_response(response=resp)

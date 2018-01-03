@@ -1,0 +1,7 @@
+include requirements.txt
+include Makefile
+include tox.ini
+include Pipfile
+include .editorconfig
+recursive-include src *.py
+recursive-include test *.py

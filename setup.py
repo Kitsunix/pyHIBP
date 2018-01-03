@@ -66,15 +66,15 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='',  # Optional
+    url='TEMP_QUIET_TOX',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
-    author='',  # Optional
+    author='Kyra',  # Optional
 
     # This should be a valid email address corresponding to the author listed
     # above.
-    author_email='',  # Optional
+    author_email='tmp@tmp.invalid',  # Optional
 
     # Classifiers help users find your project by categorizing it.
     #

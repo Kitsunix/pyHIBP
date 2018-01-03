@@ -1,5 +1,5 @@
 pyHIBP (pyHave I Been Pwned)
-=======================
+============================
 
 An interface to Troy Hunt's 'Have I Been Pwned?' (herein referred to as HIBP) public API.
 

@@ -17,16 +17,16 @@ TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH = hashlib.sha1(TEST_PASSWORD_LIKELY_NO
 
 class TestGetBreaches(object):
     def test_get_breaches_account(self):
-        # get_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=False, include_unverified=False):
-        resp = pyHIBP.get_breaches(account=TEST_ACCOUNT)
+        # get_account_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=False, include_unverified=False):
+        resp = pyHIBP.get_account_breaches(account=TEST_ACCOUNT)
         assert isinstance(resp, list)
         # As of a manual test, there were 46 accounts for the test@example.com; so >=20 is safe.
         assert len(resp) >= 20
         assert isinstance(resp[0], dict)
 
     def test_get_breaches_account_with_domain(self):
-        # get_breaches(account=TEST_ACCOUNT, domain=TEST_DOMAIN, truncate_response=False, include_unverified=False):
-        resp = pyHIBP.get_breaches(account=TEST_ACCOUNT, domain=TEST_DOMAIN)
+        # get_account_breaches(account=TEST_ACCOUNT, domain=TEST_DOMAIN, truncate_response=False, include_unverified=False):
+        resp = pyHIBP.get_account_breaches(account=TEST_ACCOUNT, domain=TEST_DOMAIN)
         assert isinstance(resp, list)
         # We're limiting the domain; so we only expect one breach to be returned
         assert len(resp) == 1
@@ -34,8 +34,8 @@ class TestGetBreaches(object):
         assert resp[0]['Name'] == TEST_DOMAIN_NAME
 
     def test_get_breaches_account_with_truncation(self):
-        # get_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=True, include_unverified=False):
-        resp = pyHIBP.get_breaches(account=TEST_ACCOUNT, truncate_response=True)
+        # get_account_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=True, include_unverified=False):
+        resp = pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
         assert isinstance(resp, list)
         assert len(resp) >= 20
         assert isinstance(resp[0], dict)
@@ -45,25 +45,9 @@ class TestGetBreaches(object):
         assert 'Name' in item
         assert 'DataClasses' not in item
 
-    def test_get_breaches_domain(self):
-        # get_breaches(account=None, domain="adobe.com", truncate_response=True, include_unverified=False):
-        resp = pyHIBP.get_breaches(domain="adobe.com")
-        # The API returns the information as a list (specifically, request's .json() does)
-        assert isinstance(resp, list)
-        # We're only expecting one item
-        assert len(resp) == 1
-        assert isinstance(resp[0], dict)
-        assert resp[0]['Name'] == TEST_DOMAIN_NAME
-
-    def test_get_breaches_retrieve_all_breaches(self):
-        # get_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
-        resp = pyHIBP.get_breaches()
-        assert isinstance(resp, list)
-        assert len(resp) > 50
-
     def test_get_breaches_retrieve_all_breaches_with_unverified(self):
-        # get_breaches(account=None, domain=None, truncate_response=False, include_unverified=True):
-        resp = pyHIBP.get_breaches(include_unverified=True)
+        # get_account_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=False, include_unverified=True):
+        resp = pyHIBP.get_account_breaches(account=TEST_ACCOUNT, include_unverified=True)
         assert isinstance(resp, list)
         assert len(resp) > 50
         has_unverified = False
@@ -74,18 +58,61 @@ class TestGetBreaches(object):
                 break
         assert has_unverified
 
-    def test_get_breaches_raise_if_account_is_not_string(self):
-        # get_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
+    def test_get_breaches_return_false_if_no_accounts(self):
+        # get_account_breaches(account=TEST_PASSWORD_SHA1_HASH, domain=None, truncate_response=False, include_unverified=False):
+        resp = pyHIBP.get_account_breaches(account=TEST_PASSWORD_SHA1_HASH)
+        assert not resp
+        assert isinstance(resp, bool)
+
+    def test_get_breaches_raise_if_account_is_not_specified(self):
+        # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the account must be a string (specifically, six.text_type)
-            pyHIBP.get_breaches(account=1)
-        assert "The account parameter, if specified, must be a string" in str(excinfo.value)
+            pyHIBP.get_account_breaches(account=None)
+        assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
+
+    def test_get_breaches_raise_if_account_is_not_string(self):
+        # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
+        with pytest.raises(AttributeError) as excinfo:
+            # Will raise because the account must be a string (specifically, six.text_type)
+            pyHIBP.get_account_breaches(account=1)
+        assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
     def test_get_breaches_raise_if_domain_is_not_string(self):
-        # get_breaches(account=None, domain=1, truncate_response=False, include_unverified=False):
+        # get_account_breaches(account=TEST_ACCOUNT, domain=1, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the domain must be a string (specifically, six.text_type)
-            pyHIBP.get_breaches(domain=1)
+            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, domain=1)
+        assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
+
+
+class TestGetAllBreaches(object):
+    def test_get_all_breaches(self):
+        # def get_all_breaches(domain=None):
+        resp = pyHIBP.get_all_breaches()
+        assert isinstance(resp, list)
+        assert len(resp) > 50
+        assert isinstance(resp[0], dict)
+
+    def test_get_all_breaches_filter_to_domain(self):
+        # def get_all_breaches(domain=TEST_DOMAIN):
+        resp = pyHIBP.get_all_breaches(domain=TEST_DOMAIN)
+        assert isinstance(resp, list)
+        # There can be multiple breaches in the system for a given domain
+        assert len(resp) >= 1
+        assert isinstance(resp[0], dict)
+        assert resp[0]['Name'] == TEST_DOMAIN_NAME
+
+    def test_get_all_breaches_false_if_domain_does_not_exist(self):
+        resp = pyHIBP.get_all_breaches(domain=TEST_PASSWORD_SHA1_HASH)
+        assert not resp
+        assert isinstance(resp, bool)
+
+    def test_get_all_breaches_raise_if_not_string(self):
+        # def get_all_breaches(domain=1):
+        with pytest.raises(AttributeError) as excinfo:
+            # Will raise because the domain must be a string (specifically, six.text_type)
+            pyHIBP.get_all_breaches(domain=1)
         assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
 
 
@@ -107,14 +134,14 @@ class TestGetSingleBreach(object):
         with pytest.raises(AttributeError) as excinfo:
             # Will error because the breach_name must be specified
             pyHIBP.get_single_breach()
-        assert "The breach_name must be specified, and be a text string" in str(excinfo.value)
+        assert "The breach_name must be specified, and be a string" in str(excinfo.value)
 
     def test_get_single_breach_raise_when_breach_name_is_not_a_string(self):
         # pyHIBP.get_single_breach(breach_name=1)
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the breach_name must be a string (specifically, six.text_type)
             pyHIBP.get_single_breach(breach_name=1)
-        assert "The breach_name must be specified, and be a text string" in str(excinfo.value)
+        assert "The breach_name must be specified, and be a string" in str(excinfo.value)
 
 
 class TestGetPastes(object):
@@ -126,17 +153,23 @@ class TestGetPastes(object):
         for item in resp:
             assert isinstance(item, dict)
 
+    def test_get_pastes_return_false_if_no_account(self):
+        # pyHIBP.get_pastes(email_address=TEST_ACCOUNT):
+        resp = pyHIBP.get_pastes(email_address=TEST_PASSWORD_SHA1_HASH + "@example.invalid")
+        assert not resp
+        assert isinstance(resp, bool)
+
     def test_get_pastes_raise_if_email_not_specified(self):
         # pyHIBP.get_pastes():
         with pytest.raises(AttributeError) as excinfo:
             pyHIBP.get_pastes()
-        assert "The email address supplied must be provided, and be a text string" in str(excinfo.value)
+        assert "The email address supplied must be provided, and be a string" in str(excinfo.value)
 
     def test_get_pastes_raise_if_email_not_string(self):
         # pyHIBP.get_pastes(email_address=1):
         with pytest.raises(AttributeError) as excinfo:
             pyHIBP.get_pastes(email_address=1)
-        assert "The email address supplied must be provided, and be a text string" in str(excinfo.value)
+        assert "The email address supplied must be provided, and be a string" in str(excinfo.value)
 
 
 class TestGetDataClasses(object):
@@ -200,8 +233,16 @@ class TestMiscellaneous(object):
         The API will respond the same to all exceeded rate limits across all endpoints; only need to test this
         once
         """
-        # (x2) get_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
+        # (x2) get_account_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
         with pytest.raises(RuntimeError) as excinfo:
-            pyHIBP.get_breaches(account=TEST_ACCOUNT, truncate_response=True)
-            pyHIBP.get_breaches(account=TEST_ACCOUNT, truncate_response=True)
+            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
+            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
         assert "HTTP 429" in str(excinfo.value)
+
+    def test_raise_if_useragent_is_not_set(self, monkeypatch):
+        # This should never be encountered normally, since we have the module-level variable/constant;
+        # That said, test it, since we can, and since we might as well cover the line of code.
+        monkeypatch.setattr(pyHIBP, 'pyHIBP_USERAGENT', None)
+        with pytest.raises(RuntimeError) as excinfo:
+            pyHIBP.get_data_classes()
+        assert "HTTP 403" in str(excinfo.value)
