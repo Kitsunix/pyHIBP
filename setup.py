@@ -89,7 +89,7 @@ setup(
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Libraries :: Python Modules',
 
         # Pick your license as you wish
         # 'License :: OSI Approved :: MIT License',
@@ -99,9 +99,7 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
     ],
 
     # This field adds keywords for your project which will appear on the
@@ -119,7 +117,7 @@ setup(
     #
     #   py_modules=["my_module"],
     #
-    packages=find_packages(exclude=['test']),  # Required
+    packages=find_packages(where="src"),  # Required
 
     # Package directory
     package_dir={'': 'src'},
