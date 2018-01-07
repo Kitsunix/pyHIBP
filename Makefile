@@ -1,5 +1,8 @@
 # Directories that might be created during testing
-TESTING_DIRS := .tox build dist htmlcov .cache
+TESTING_DIRS := .tox build dist htmlcov .cache src/pyHIBP.egg-info
+
+build:
+	pipenv run python setup.py sdist bdist_wheel
 
 .PHONY: clean
 clean:

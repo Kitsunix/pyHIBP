@@ -3,5 +3,7 @@ include Makefile
 include tox.ini
 include Pipfile
 include .editorconfig
+include LICENSE
+
 recursive-include src *.py
 recursive-include test *.py

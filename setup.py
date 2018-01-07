@@ -50,7 +50,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='An interface to the Have I Been Pwned public API',  # Required
+    description="An interface to Troy Hunt's 'Have I Been Pwned' public API",  # Required
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
@@ -70,7 +70,7 @@ setup(
 
     # This should be your name or the name of the organization which owns the
     # project.
-    author='Kyra',  # Optional
+    author='Kyra F. Kitsune',  # Optional
 
     # This should be a valid email address corresponding to the author listed
     # above.
@@ -92,7 +92,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
 
         # Pick your license as you wish
-        # 'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
@@ -106,7 +106,7 @@ setup(
     # project page. What does your project relate to?
     #
     # Note that this is a string of words separated by whitespace, not a list.
-    keywords='',  # Optional
+    # keywords='',  # Optional
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
