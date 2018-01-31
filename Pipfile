@@ -9,7 +9,7 @@ url = "https://pypi.python.org/simple"
 
 requests = ">=2.18.4"
 six = ">=1.11.0"
-"e1839a8" = {editable = true, path = "."}
+"e1839a8" = {path = ".", editable = true}
 
 
 [dev-packages]
@@ -19,3 +19,4 @@ pytest = "*"
 pytest-cov = "*"
 check-manifest = "*"
 "flake8" = "*"
+vcversioner = "*"

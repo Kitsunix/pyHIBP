@@ -18,6 +18,7 @@ pyHIBP_USERAGENT = "pyHIBP: A Python Interface to the Public HIBP API"
 def _process_response(response):
     """
     Process the `requests` response from the call to the HIBP API endpoints.
+
     :param response: The response object from a call to `requests`
     :return: True if HTTP Status 200, False if 404. Raises RuntimeError on API-defined status codes of
     400, 403, 429; NotImplementedError if the API returns an unexpected HTTP status code.
@@ -76,7 +77,7 @@ def get_account_breaches(account=None, domain=None, truncate_response=False, inc
         "truncateResponse": truncate_response,
         "includeUnverified": include_unverified,
     }
-    resp = requests.get(uri, params=query_string_payload, headers=headers)
+    resp = requests.get(url=uri, params=query_string_payload, headers=headers)
     if _process_response(response=resp):
         return resp.json()
     else:
@@ -96,7 +97,7 @@ def get_all_breaches(domain=None):
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHES
     headers = {'user-agent': pyHIBP_USERAGENT}
     query_string_payload = {'domain': domain}
-    resp = requests.get(uri, params=query_string_payload, headers=headers)
+    resp = requests.get(url=uri, params=query_string_payload, headers=headers)
     # The API will return HTTP200 even if resp.json is length zero.
     if _process_response(response=resp) and len(resp.json()) > 0:
         return resp.json()
@@ -116,8 +117,8 @@ def get_single_breach(breach_name=None):
         raise AttributeError("The breach_name must be specified, and be a string")
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
     headers = {'user-agent': pyHIBP_USERAGENT}
-    resp = requests.get(uri, headers=headers)
-    if _process_response(resp):
+    resp = requests.get(url=uri, headers=headers)
+    if _process_response(response=resp):
         return resp.json()
     else:
         return False
@@ -126,6 +127,7 @@ def get_single_breach(breach_name=None):
 def get_pastes(email_address=None):
     """
     Retrieve all pastes for a specified email address.
+
     :param email_address: The email address to search. Required.
     :return: A list object containing one or more dict objects corresponding to the pastes the specified email
     address was found in. Boolean False returned if no pastes are detected for the given account.
@@ -134,7 +136,7 @@ def get_pastes(email_address=None):
         raise AttributeError("The email address supplied must be provided, and be a string")
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
     headers = {'user-agent': pyHIBP_USERAGENT}
-    resp = requests.get(uri, headers=headers)
+    resp = requests.get(url=uri, headers=headers)
     if _process_response(response=resp):
         return resp.json()
     else:
@@ -150,7 +152,7 @@ def get_data_classes():
     """
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_DATA_CLASSES
     headers = {'user-agent': pyHIBP_USERAGENT}
-    resp = requests.get(uri, headers=headers)
+    resp = requests.get(url=uri, headers=headers)
     if _process_response(response=resp):
         return resp.json()
     else:
@@ -177,9 +179,10 @@ def is_password_breached(password=None, sha1_hash=None):
     elif sha1_hash is not None and not isinstance(sha1_hash, six.string_types):
         raise AttributeError("The provided sha1_hash is not a string")
 
-    if password and sha1_hash:
-        if hashlib.sha1(password.encode('utf-8')).hexdigest() != sha1_hash.lower():
-            raise AttributeError("A password and SHA1 hash were supplied (only one is needed), but they did not match")
+    if password and sha1_hash and hashlib.sha1(password.encode('utf-8')).hexdigest() != sha1_hash.lower():
+        # We want to make sure we accurately tell the user if the password was breached,
+        # and providing 'True' when the password and SHA are different is extremely ambiguous.
+        raise AttributeError("A password and SHA1 hash were supplied (only one is needed), but they did not match")
     elif password and not sha1_hash:
         # Only submit the SHA1 hash to the backend
         sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest()
@@ -188,5 +191,5 @@ def is_password_breached(password=None, sha1_hash=None):
     headers = {'user-agent': pyHIBP_USERAGENT}
     payload = {'Password': sha1_hash}
 
-    resp = requests.post(uri, data=payload, headers=headers)
+    resp = requests.post(url=uri, data=payload, headers=headers)
     return _process_response(response=resp)

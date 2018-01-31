@@ -231,7 +231,7 @@ class TestMiscellaneous(object):
     def test_raise_if_rate_limit_exceeded(self):
         """
         The API will respond the same to all exceeded rate limits across all endpoints; only need to test this
-        once
+        once.
         """
         # (x2) get_account_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
         with pytest.raises(RuntimeError) as excinfo:
@@ -246,3 +246,9 @@ class TestMiscellaneous(object):
         with pytest.raises(RuntimeError) as excinfo:
             pyHIBP.get_data_classes()
         assert "HTTP 403" in str(excinfo.value)
+
+    def test_raise_if_invalid_format_submitted(self):
+        # For example, if a null (0x00) character is submitted to an endpoint.
+        with pytest.raises(RuntimeError) as execinfo:
+            pyHIBP.get_account_breaches(account="\0")
+        assert "HTTP 400" in str(execinfo.value)
