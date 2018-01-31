@@ -14,7 +14,7 @@ Installing
 
 .. code::
 
-    # TODO: Not yet on PyPI.
+    pip install pyHIBP
 
 Example usage
 -------------

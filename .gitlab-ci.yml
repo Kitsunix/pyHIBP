@@ -1,0 +1,54 @@
+image: debian:latest
+
+stages:
+  - test
+  - codequality
+
+python2:
+  stage: test
+  script:
+    # Tox/Pipenv requires the LC_ALL/LANG envars set during the py3 run
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - export TOXENV=py27  # Only Python 2.7.x on this job
+    - apt-get update
+    - apt-get -y install python build-essential curl git
+    - curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
+    - python ./get-pip.py
+    # We need to remove get-pip.py, or check-manifest in tox has a fit
+    - rm ./get-pip.py
+    - pip install pipenv
+    - make dev
+    - make tox
+
+python3:
+  stage: test
+  script:
+    # Tox/Pipenv requires the LC_ALL/LANG envars set during the py3 run
+    - export LC_ALL=C.UTF-8
+    - export LANG=C.UTF-8
+    - export TOXENV=py35  # Only Python 3.5.x on this job
+    - apt-get update
+    - apt-get -y install python3 build-essential curl git
+    - curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
+    - python3 ./get-pip.py
+    # We need to remove get-pip.py, or check-manifest in tox has a fit
+    - rm ./get-pip.py
+    - pip install pipenv
+    - make dev
+    - make tox
+
+codequality:
+  stage: codequality
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay
+  services:
+    - docker:dind
+  script:
+    - docker pull codeclimate/codeclimate
+    - docker run --env CODECLIMATE_CODE="$PWD" --volume "$PWD":/code --volume /var/run/docker.sock:/var/run/docker.sock --volume /tmp/cc:/tmp/cc codeclimate/codeclimate:0.69.0 init
+    - docker run --env CODECLIMATE_CODE="$PWD" --volume "$PWD":/code --volume /var/run/docker.sock:/var/run/docker.sock --volume /tmp/cc:/tmp/cc codeclimate/codeclimate:0.69.0 analyze -f json > codeclimate.json || true
+  artifacts:
+    paths: [codeclimate.json]
+    expire_in: 2 weeks
