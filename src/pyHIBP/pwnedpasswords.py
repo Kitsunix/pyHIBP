@@ -60,7 +60,7 @@ def is_password_breached(password=None, sha1_hash=None):
     headers = {'user-agent': pyHIBP.pyHIBP_USERAGENT}
 
     resp = requests.get(url=uri, headers=headers)
-    
+
     if _process_response(response=resp):
         return resp.text
     else:
@@ -71,17 +71,17 @@ def range_search(first_5_hash_chars=None, sha1_hash=None):
     """
     Execute a search for a password via the k-anonymity model, checking for hashes which match a specified
     prefix instead of supplying the full hash.
-    
+
     Uses the first five characters of a SHA-1 hash to provide a list of hash suffixes along with the
     number of times that hash appears in the data set. In doing so, the API is not provided the information
     required to reconstruct the password (e.g., by brute-forcing the hash).
-    
+
     Either ``first_5_hash_chars`` or ``sha1_hash`` must be specified. If both are specified, raises
     AttributeError if first_5_hash_chars does not match sha1_hash[0:4]. In this instance, only the
     first five hash characters of sha1_hash will be provided to the API.
-    
+
     Suffix example: 0018A45C4D1DEF81644B54AB7F969B88D65:1
-    
+
     :param first_5_hash_chars: The first five characters of a SHA-1 hash string.
     :param sha1_hash: A full SHA-1 hash.
     :return: If ``first_5_hash_chars`` is supplied, a [list] of hash suffixes. If ``sha1_hash`` is supplied,
@@ -98,10 +98,10 @@ def range_search(first_5_hash_chars=None, sha1_hash=None):
         raise AttributeError("first_5_hash_chars does not match sha1_hash[0:4]")
     elif sha1_hash:
         first_5_hash_chars = sha1_hash[0:4]
-    
+
     uri = PWNED_PASSWORDS_API_BASE_URI + PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH + first_5_hash_chars
     resp = requests.get(uri=uri, headers=pyHIBP.pyHIBP_USERAGENT)
-    
+
     if resp.status_code != 200:
         # The HTTP Status should always be 200 for this request
         raise RuntimeError("Response from the endpoint was not HTTP200; this should not happen. Code was: " + resp.status_code)
@@ -111,11 +111,11 @@ def range_search(first_5_hash_chars=None, sha1_hash=None):
     else:
         # Since the full SHA-1 hash was provided, check to see if it was in the resultant hash suffixes returned.
         response_lines = resp.text.split()
-        
+
         for hash_suffix in response_lines:
             if sha1_hash[4:] in hash_suffix:
                 # We found the full hash, so return
                 return hash_suffix.split(':')[1]
-        
+
         # If we get here, there was no match to the supplied SHA-1 hash; return zero.
         return 0
