@@ -1,4 +1,5 @@
 import hashlib
+import time
 
 import pytest
 
@@ -13,6 +14,12 @@ TEST_PASSWORD_SHA1_HASH = hashlib.sha1(TEST_PASSWORD.encode('utf-8')).hexdigest(
 # At least, I doubt someone would have used this (only directly specifying here for deterministic tests...)
 TEST_PASSWORD_LIKELY_NOT_COMPROMISED = "&Q?t{%i|n+&qpyP/`/Lyr3<rK|N/M//;u^!fnR+j'lM)A+IGcgRGs[6mLY7yV-|x0bYB&L.JyaJ"
 TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH = hashlib.sha1(TEST_PASSWORD_LIKELY_NOT_COMPROMISED.encode('utf-8')).hexdigest()
+
+
+@pytest.fixture(autouse=True)
+def rate_limit():
+    # The HIBP API has a ratelimit of 1500ms. Sleep for 2 seconds.
+    time.sleep(2)
 
 
 class TestGetBreaches(object):
@@ -182,6 +189,8 @@ class TestGetDataClasses(object):
 
 
 class TestIsPasswordBreached(object):
+    """ NB: Deprecated function """
+
     def test_is_password_breached_password_only_breached(self):
         # is_password_breached(password=TEST_PASSWORD, sha1_hash=None):
         assert pyHIBP.is_password_breached(password=TEST_PASSWORD)

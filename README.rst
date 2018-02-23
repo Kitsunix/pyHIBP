@@ -1,13 +1,17 @@
 pyHIBP (pyHave I Been Pwned)
 ============================
 
-An interface to Troy Hunt's 'Have I Been Pwned?' (herein referred to as HIBP) public API. A full reference to the API specification can be found at https://haveibeenpwned.com/API/v2.
+An interface to Troy Hunt's 'Have I Been Pwned?' (herein referred to as HIBP) public API. A full reference to the API
+specification can be found at the `HIBP API Reference`_.
 Additionally, the full API reference contains all information types and sample return values for each API endpoint.
 
 This module detects when the rate limit of the API has been hit, and raises a RuntimeError when the limit is exceeded.
 ``pyHIBP._process_response`` contains the full list of items that will result in a raised exception. In summary, a call
 to the module returning Boolean ``True`` or the object as decoded from the API query (currently, lists), represent
 a detection that a breached account/paste/password was found; Boolean ``False`` means that the item was not found.
+
+Note that the ``pwnedpasswords`` module does _not_ have a rate-limit. If you are intending to bulk-query passwords or
+hashes, you may also consider downloading the raw data files accessible via the `Pwned Passwords`_ page.
 
 Installing
 ----------
@@ -22,11 +26,13 @@ Example usage
 .. code-block:: python
 
     import pyHIBP
+    from pyHIBP import pwnedpasswords as pw
 
     # Check a password to see if it has been disclosed in a public breach corpus
-    resp = pyHIBP.is_password_breached(password="secret")
+    resp = pw.is_password_breached(password="secret")
     if resp:
         print("Password breached!")
+        print("This password was found used " + resp + " number of times.")
 
     # Get breaches that affect a given account
     resp = pyHIBP.get_account_breaches(account="test@example.com", truncate_response=True)
@@ -61,18 +67,20 @@ Other commands can be found in the ``Makefile``.
 
 Goals
 -----
-* Synchronize to the latest HIBP API.
-* For breaches and pastes, act as an intermediary; return the JSON as received from the service.
-* For passwords, return True or False based on the result of the query.
+* Synchronize to the latest HIBP API(s).
 * Raise appropriate exceptions for other errors.
 
 Regarding password checking
 ---------------------------
 * For passwords, the option to supply a plaintext password to check is provided as an implementation convenience.
 * However, passwords will always be SHA1 hashed prior to submission for checking.
-* The SHA1 hash will be submitted to the HIBP backend via POST-submission of the SHA1 hash.
+* You may use ``pwnedpasswords.range_search`` to supply the Pwned Passwords endpoint five characters of the resultant
+  SHA-1 hash, thus preserving the confidentiality of the hashed password.
 
 Package version scheme
 ----------------------
 The major version will always target the latest version of the pyHIBP API. Minor and micro will be used for incremental
 changes.
+
+.. _HIBP API Reference: https://haveibeenpwned.com/API/v2
+.. _Pwned Passwords: https://haveibeenpwned.com/Passwords
