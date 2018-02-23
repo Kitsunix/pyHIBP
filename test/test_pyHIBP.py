@@ -189,7 +189,7 @@ class TestGetDataClasses(object):
 
 
 class TestIsPasswordBreached(object):
-    """ NB: Deprecated function """
+    """ NB: Deprecated function ... moved to pwnedpasswords.is_password_breached """
 
     def test_is_password_breached_password_only_breached(self):
         # is_password_breached(password=TEST_PASSWORD, sha1_hash=None):
