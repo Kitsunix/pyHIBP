@@ -177,6 +177,10 @@ def is_password_breached(password=None, sha1_hash=None):
     """
     warnings.warn("Deprecation Warning: is_password_breached has moved to the pwnedpasswords module.")
 
+    # Partially re-implement parameter checks to handle this deprecated function wrapper.
+    if not password and not sha1_hash:
+        raise AttributeError("You must provide either a password or sha1_hash.")
+
     # Pass the variables through to the new function...
     resp = pw.is_password_breached(password=password, sha1_hash=sha1_hash)
 

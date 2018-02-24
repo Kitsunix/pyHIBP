@@ -73,9 +73,8 @@ Goals
 Regarding password checking
 ---------------------------
 * For passwords, the option to supply a plaintext password to check is provided as an implementation convenience.
-* However, passwords will always be SHA1 hashed prior to submission for checking.
-* You may use ``pwnedpasswords.range_search`` to supply the Pwned Passwords endpoint five characters of the resultant
-  SHA-1 hash, thus preserving the confidentiality of the hashed password.
+* For added security, ``pwnedpasswords.is_password_breached()`` only transmits the first five characters of the SHA-1
+  hash to the Pwned Passwords API endpoint; a secure password will remain secure without disclosing the full hash.
 
 Package version scheme
 ----------------------

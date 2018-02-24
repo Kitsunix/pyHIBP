@@ -20,95 +20,39 @@ def rate_limit():
 
 
 class TestIsPasswordBreached(object):
-    def test_is_password_breached_password_only_breached(self):
-        # is_password_breached(password=TEST_PASSWORD, sha1_hash=None):
-        resp = pw.is_password_breached(password=TEST_PASSWORD)
-        assert isinstance(resp, int)
-        # It's actually 3303003 at last check, but 100 works for PoC.
-        assert resp > 100
-
-    def test_is_password_breached_sha1hash_only_breached(self):
-        # is_password_breached(password=None, sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        resp = pw.is_password_breached(sha1_hash=TEST_PASSWORD_SHA1_HASH)
-        assert isinstance(resp, int)
-
-    def test_is_password_breached_password_only_not_breached(self):
-        # is_password_breached(password=TEST_PASSWORD_LIKELY_NOT_COMPROMISED, sha1_hash=None):
-        resp = pw.is_password_breached(password=TEST_PASSWORD_LIKELY_NOT_COMPROMISED)
-        assert isinstance(resp, int)
-        assert resp == 0
-
-    def test_is_password_breached_sha1hash_only_not_breached(self):
-        # is_password_breached(password=None, sha1_hash=TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH):
-        resp = pw.is_password_breached(sha1_hash=TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH)
-        assert isinstance(resp, int)
-        assert resp == 0
-
-    def test_is_password_breached_password_and_sha1hash_matches(self):
-        # is_password_breached(password=TEST_PASSWORD, sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        resp = pw.is_password_breached(password=TEST_PASSWORD, sha1_hash=TEST_PASSWORD_SHA1_HASH)
-        assert isinstance(resp, int)
-        assert resp > 100
-
-    def test_is_password_breached_raise_if_no_params_specified(self):
-        # is_password_breached(password=None, sha1_hash=None)
-        with pytest.raises(AttributeError) as excinfo:
-            pw.is_password_breached()
-        assert "You must provide either a password or sha1_hash" in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_password_not_string(self):
-        # is_password_breached(password=1, sha1_hash=None)
-        with pytest.raises(AttributeError) as excinfo:
-            pw.is_password_breached(password=1)
-        assert "The provided password is not a string" in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_sha1hash_not_string(self):
-        # is_password_breached(password=None, sha1_hash=1)
-        with pytest.raises(AttributeError) as excinfo:
-            pw.is_password_breached(sha1_hash=1)
-        assert "The provided sha1_hash is not a string" in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_password_and_sha1hash_mismatch(self):
-        # is_password_breached(password="NotThePassword", sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        with pytest.raises(AttributeError) as excinfo:
-            pw.is_password_breached(password="NotThePassword", sha1_hash=TEST_PASSWORD_SHA1_HASH)
-        assert "A password and SHA1 hash were supplied (only one is needed), but they did not match" in str(excinfo.value)
-
-
-class TestRangeSearch(object):
     def test_no_params_provided_raises(self):
-        # range_search(password=None, first_5_hash_chars=None, sha1_hash=None):
+        # is_password_breached(password=None, first_5_hash_chars=None, sha1_hash=None):
         with pytest.raises(AttributeError) as execinfo:
-            pw.range_search()
+            pw.is_password_breached()
         assert "One of password, first_5_hash_chars, or sha1_hash must be provided." in str(execinfo.value)
 
     def test_password_not_string_raises(self):
-        # range_search(password=123, first_5_hash_chars=None, sha1_hash=None):
+        # is_password_breached(password=123, first_5_hash_chars=None, sha1_hash=None):
         with pytest.raises(AttributeError) as execinfo:
-            pw.range_search(password=123)
+            pw.is_password_breached(password=123)
         assert "password must be a string type." in str(execinfo.value)
 
     def test_first_5_hash_chars_not_string_raises(self):
-        # range_search(password=None, first_5_hash_chars=123, sha1_hash=None):
+        # is_password_breached(password=None, first_5_hash_chars=123, sha1_hash=None):
         with pytest.raises(AttributeError) as execinfo:
-            pw.range_search(first_5_hash_chars=123)
+            pw.is_password_breached(first_5_hash_chars=123)
         assert "first_5_hash_chars must be a string type." in str(execinfo.value)
 
     def test_first_5_hash_chars_not_length_five_raises(self):
-        # range_search(password=None, first_5_hash_chars="123456", sha1_hash=None):
+        # is_password_breached(password=None, first_5_hash_chars="123456", sha1_hash=None):
         with pytest.raises(AttributeError) as execinfo:
-            pw.range_search(first_5_hash_chars="123456")
+            pw.is_password_breached(first_5_hash_chars="123456")
         assert "first_5_hash_chars must be of length 5." in str(execinfo.value)
 
     def test_sha1_hash_not_string_raises(self):
-        # range_search(password=None, first_5_hash_chars=None, sha1_hash=123):
+        # is_password_breached(password=None, first_5_hash_chars=None, sha1_hash=123):
         with pytest.raises(AttributeError) as execinfo:
-            pw.range_search(sha1_hash=123)
+            pw.is_password_breached(sha1_hash=123)
         assert "sha1_hash must be a string type." in str(execinfo.value)
 
     def test_list_of_partial_hashes_returned_with_5chars(self):
-        # range_search(password=None, first_5_hash_chars=TEST_PASSWORD_SHA1_HASH[0:5], sha1_hash=None):
-        resp = pw.range_search(first_5_hash_chars=TEST_PASSWORD_SHA1_HASH[0:5])
+        # is_password_breached(password=None, first_5_hash_chars=TEST_PASSWORD_SHA1_HASH[0:5], sha1_hash=None):
+        resp = pw.is_password_breached(first_5_hash_chars=TEST_PASSWORD_SHA1_HASH[0:5])
         assert isinstance(resp, list)
         assert len(resp) > 100
         match_found = False
@@ -119,22 +63,22 @@ class TestRangeSearch(object):
         assert match_found
 
     def test_provide_password_to_function(self):
-        resp = pw.range_search(password="password")
+        resp = pw.is_password_breached(password="password")
         assert isinstance(resp, int)
         assert resp > 100
 
     def test_ensure_case_sensitivity_of_hash_does_not_matter(self):
-        resp_one = pw.range_search(sha1_hash=TEST_PASSWORD_SHA1_HASH.lower())
+        resp_one = pw.is_password_breached(sha1_hash=TEST_PASSWORD_SHA1_HASH.lower())
         assert isinstance(resp_one, int)
         assert resp_one > 100
 
-        resp_two = pw.range_search(sha1_hash=TEST_PASSWORD_SHA1_HASH.upper())
+        resp_two = pw.is_password_breached(sha1_hash=TEST_PASSWORD_SHA1_HASH.upper())
         assert isinstance(resp_two, int)
         assert resp_two > 100
 
         assert resp_one == resp_two
 
     def test_zero_count_result_for_non_breached_password(self):
-        resp = pw.range_search(password=TEST_PASSWORD_LIKELY_NOT_COMPROMISED)
+        resp = pw.is_password_breached(password=TEST_PASSWORD_LIKELY_NOT_COMPROMISED)
         assert isinstance(resp, int)
         assert resp == 0

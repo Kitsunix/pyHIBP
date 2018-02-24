@@ -221,19 +221,13 @@ class TestIsPasswordBreached(object):
         # is_password_breached(password=1, sha1_hash=None)
         with pytest.raises(AttributeError) as excinfo:
             pyHIBP.is_password_breached(password=1)
-        assert "The provided password is not a string" in str(excinfo.value)
+        assert "password must be a string type." in str(excinfo.value)
 
     def test_is_password_breached_raise_if_sha1hash_not_string(self):
         # is_password_breached(password=None, sha1_hash=1)
         with pytest.raises(AttributeError) as excinfo:
             pyHIBP.is_password_breached(sha1_hash=1)
-        assert "The provided sha1_hash is not a string" in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_password_and_sha1hash_mismatch(self):
-        # is_password_breached(password="NotThePassword", sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        with pytest.raises(AttributeError) as excinfo:
-            pyHIBP.is_password_breached(password="NotThePassword", sha1_hash=TEST_PASSWORD_SHA1_HASH)
-        assert "A password and SHA1 hash were supplied (only one is needed), but they did not match" in str(excinfo.value)
+        assert "sha1_hash must be a string type." in str(excinfo.value)
 
 
 class TestMiscellaneous(object):

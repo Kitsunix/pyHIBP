@@ -4,7 +4,7 @@ include tox.ini
 include Pipfile
 include .editorconfig
 include LICENSE
-include CHANGELOG
+include CHANGELOG.rst
 include version.txt
 
 exclude .gitlab-ci.yml
