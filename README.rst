@@ -3,7 +3,6 @@ pyHIBP (pyHave I Been Pwned)
 
 An interface to Troy Hunt's 'Have I Been Pwned?' (herein referred to as HIBP) public API. A full reference to the API
 specification can be found at the `HIBP API Reference`_.
-Additionally, the full API reference contains all information types and sample return values for each API endpoint.
 
 This module detects when the rate limit of the API has been hit, and raises a RuntimeError when the limit is exceeded.
 ``pyHIBP._process_response`` contains the full list of items that will result in a raised exception. In summary, a call
@@ -32,7 +31,7 @@ Example usage
     resp = pw.is_password_breached(password="secret")
     if resp:
         print("Password breached!")
-        print("This password was found used " + resp + " number of times.")
+        print("This password was used " + str(resp) + " time(s) before.")
 
     # Get breaches that affect a given account
     resp = pyHIBP.get_account_breaches(account="test@example.com", truncate_response=True)
@@ -51,14 +50,14 @@ Example usage
 
 Developing
 ----------
-This project desires compatibility with Python 2 and Python 3. As such, we use virtual environments via ``pipenv``.
+This project is intended to be compatible with Python 2 and Python 3. As such, we use virtual environments via ``pipenv``.
 To develop or test, execute the following:
 
 .. code:: python
 
     # Install the pre-requisite virtual environment provider
     pip install pipenv
-    # Initialize the pipenv environment and install the moduled within it
+    # Initialize the pipenv environment and install the module within it
     make dev
     # To run PEP8, tests, and check the manifest
     make tox
@@ -67,19 +66,16 @@ Other commands can be found in the ``Makefile``.
 
 Goals
 -----
-* Synchronize to the latest HIBP API(s).
-* Raise appropriate exceptions for other errors.
+* Synchronize to the latest HIBP API(s), implementing endpoint accessing functions where it makes sense. For instance,
+  in the interest of security, the ability to submit a SHA-1 to the Pwned Passwords endpoint is not implemented. See
+  "Regarding password checking" below for further details.
+* For breaches and pastes, act as an intermediary; return the JSON as received from the service.
 
 Regarding password checking
 ---------------------------
 * For passwords, the option to supply a plaintext password to check is provided as an implementation convenience.
 * For added security, ``pwnedpasswords.is_password_breached()`` only transmits the first five characters of the SHA-1
   hash to the Pwned Passwords API endpoint; a secure password will remain secure without disclosing the full hash.
-
-Package version scheme
-----------------------
-The major version will always target the latest version of the pyHIBP API. Minor and micro will be used for incremental
-changes.
 
 .. _HIBP API Reference: https://haveibeenpwned.com/API/v2
 .. _Pwned Passwords: https://haveibeenpwned.com/Passwords
