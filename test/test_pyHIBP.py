@@ -1,4 +1,5 @@
 import hashlib
+import time
 
 import pytest
 
@@ -13,6 +14,12 @@ TEST_PASSWORD_SHA1_HASH = hashlib.sha1(TEST_PASSWORD.encode('utf-8')).hexdigest(
 # At least, I doubt someone would have used this (only directly specifying here for deterministic tests...)
 TEST_PASSWORD_LIKELY_NOT_COMPROMISED = "&Q?t{%i|n+&qpyP/`/Lyr3<rK|N/M//;u^!fnR+j'lM)A+IGcgRGs[6mLY7yV-|x0bYB&L.JyaJ"
 TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH = hashlib.sha1(TEST_PASSWORD_LIKELY_NOT_COMPROMISED.encode('utf-8')).hexdigest()
+
+
+@pytest.fixture(autouse=True)
+def rate_limit():
+    # The HIBP API has a ratelimit of 1500ms. Sleep for 2 seconds.
+    time.sleep(2)
 
 
 class TestGetBreaches(object):
@@ -182,6 +189,8 @@ class TestGetDataClasses(object):
 
 
 class TestIsPasswordBreached(object):
+    """ NB: Deprecated function ... moved to pwnedpasswords.is_password_breached """
+
     def test_is_password_breached_password_only_breached(self):
         # is_password_breached(password=TEST_PASSWORD, sha1_hash=None):
         assert pyHIBP.is_password_breached(password=TEST_PASSWORD)
@@ -212,19 +221,13 @@ class TestIsPasswordBreached(object):
         # is_password_breached(password=1, sha1_hash=None)
         with pytest.raises(AttributeError) as excinfo:
             pyHIBP.is_password_breached(password=1)
-        assert "The provided password is not a string" in str(excinfo.value)
+        assert "password must be a string type." in str(excinfo.value)
 
     def test_is_password_breached_raise_if_sha1hash_not_string(self):
         # is_password_breached(password=None, sha1_hash=1)
         with pytest.raises(AttributeError) as excinfo:
             pyHIBP.is_password_breached(sha1_hash=1)
-        assert "The provided sha1_hash is not a string" in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_password_and_sha1hash_mismatch(self):
-        # is_password_breached(password="NotThePassword", sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        with pytest.raises(AttributeError) as excinfo:
-            pyHIBP.is_password_breached(password="NotThePassword", sha1_hash=TEST_PASSWORD_SHA1_HASH)
-        assert "A password and SHA1 hash were supplied (only one is needed), but they did not match" in str(excinfo.value)
+        assert "sha1_hash must be a string type." in str(excinfo.value)
 
 
 class TestMiscellaneous(object):

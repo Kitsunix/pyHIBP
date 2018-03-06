@@ -1,7 +1,9 @@
-import hashlib
+import warnings
 
 import requests
 import six
+
+from pyHIBP import pwnedpasswords as pw
 
 HIBP_API_BASE_URI = "https://haveibeenpwned.com/api/v2/"
 HIBP_API_ENDPOINT_BREACH_SINGLE = "breach/"
@@ -9,7 +11,6 @@ HIBP_API_ENDPOINT_BREACHES = "breaches"
 HIBP_API_ENDPOINT_BREACHED_ACCT = "breachedaccount/"
 HIBP_API_ENDPOINT_DATA_CLASSES = "dataclasses"
 HIBP_API_ENDPOINT_PASTES = "pasteaccount/"
-HIBP_API_ENDPOINT_PWNED_PASSWORDS = "pwnedpassword"
 
 # The HIBP API requires that a useragent be set.
 pyHIBP_USERAGENT = "pyHIBP: A Python Interface to the Public HIBP API"
@@ -162,6 +163,8 @@ def get_data_classes():
 
 def is_password_breached(password=None, sha1_hash=None):
     """
+    __DEPRECATED__: Use ``pwnedpasswords.is_password_breached`` instead, which contains additional functionality.
+
     Checks the HIBP breached password corpus for a breached password. Only the password or sha1_hash
     parameter is required to be set.
 
@@ -172,24 +175,17 @@ def is_password_breached(password=None, sha1_hash=None):
     :param sha1_hash: The SHA1 hash of the password to check.
     :return: True if the password was in the HIBP password corpus, otherwise False.
     """
-    if password is None and sha1_hash is None:
-        raise AttributeError("You must provide either a password or sha1_hash")
-    elif password is not None and not isinstance(password, six.string_types):
-        raise AttributeError("The provided password is not a string")
-    elif sha1_hash is not None and not isinstance(sha1_hash, six.string_types):
-        raise AttributeError("The provided sha1_hash is not a string")
+    warnings.warn("Deprecation Warning: is_password_breached has moved to the pwnedpasswords module.")
 
-    if password and sha1_hash and hashlib.sha1(password.encode('utf-8')).hexdigest() != sha1_hash.lower():
-        # We want to make sure we accurately tell the user if the password was breached,
-        # and providing 'True' when the password and SHA are different is extremely ambiguous.
-        raise AttributeError("A password and SHA1 hash were supplied (only one is needed), but they did not match")
-    elif password and not sha1_hash:
-        # Only submit the SHA1 hash to the backend
-        sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest()
+    # Partially re-implement parameter checks to handle this deprecated function wrapper.
+    if not password and not sha1_hash:
+        raise AttributeError("You must provide either a password or sha1_hash.")
 
-    uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PWNED_PASSWORDS
-    headers = {'user-agent': pyHIBP_USERAGENT}
-    payload = {'Password': sha1_hash}
+    # Pass the variables through to the new function...
+    resp = pw.is_password_breached(password=password, sha1_hash=sha1_hash)
 
-    resp = requests.post(url=uri, data=payload, headers=headers)
-    return _process_response(response=resp)
+    if resp:
+        # If the response is greater than zero
+        return True
+    else:
+        return False
