@@ -1,4 +1,4 @@
-v2.0.1 (2018-MM-DD)
+v2.0.1 (2018-03-09)
 -------------------
 - **Deprecation warning**: The function ``is_password_breached`` has moved from ``pyHIBP`` to the module named ``pwnedpasswords``. A wrapper has
   been left to ease transition to the new function; access via ``from pyHIBP import pwnedpasswords``.
