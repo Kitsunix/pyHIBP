@@ -8,11 +8,13 @@ build:
 	pipenv run python setup.py sdist bdist_wheel
 
 # Create a target to create a pipenv once, then we can reuse it.
-.PHONY:create-pipenv
+# ``pipenv run python setup.py develop;`` because otherwise Pipenv wants to glitch out and not actually install.
+.PHONY: create-pipenv
 create-pipenv:
 	@if [ ! -f .pipenv-made ]; then \
+		echo "Installing..."; \
+		pipenv run python setup.py develop > /dev/null; \
 		pipenv install --dev; \
-		pipenv install -e .; \
 		touch .pipenv-made; \
 	fi
 
