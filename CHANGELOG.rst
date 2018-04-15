@@ -1,3 +1,11 @@
+v2.0.2 (2018-04-14)
+-------------------
+- **Final deprecation warning**: The ``pyHIBP.is_password_breached`` shim will be removed in a future release. This
+  function has been moved to the ``pwnedpasswords`` module, via ``from pyHIBP import pwnedpasswords``.
+- Internal: Shifts requirements/requirements.txt into setup.py, as as pip>=10 explicitly internalizes the method previously used
+  to fill the install_requires variable.
+- Internal: Removes vcversioner as a build requirement, opting to define the version in __version__.py.
+
 v2.0.1 (2018-03-09)
 -------------------
 - **Deprecation warning**: The function ``is_password_breached`` has moved from ``pyHIBP`` to the module named ``pwnedpasswords``. A wrapper has
