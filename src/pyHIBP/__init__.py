@@ -175,7 +175,7 @@ def is_password_breached(password=None, sha1_hash=None):
     :param sha1_hash: The SHA1 hash of the password to check.
     :return: True if the password was in the HIBP password corpus, otherwise False.
     """
-    warnings.warn("Deprecation Warning: is_password_breached has moved to the pwnedpasswords module.")
+    warnings.warn("FINAL DEPRECATION WARNING: is_password_breached has moved to the pwnedpasswords module. This shim will be removed in a future release.")
 
     # Partially re-implement parameter checks to handle this deprecated function wrapper.
     if not password and not sha1_hash:

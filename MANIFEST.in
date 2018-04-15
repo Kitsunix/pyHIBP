@@ -5,7 +5,6 @@ include Pipfile
 include .editorconfig
 include LICENSE
 include CHANGELOG.rst
-include version.txt
 
 exclude .gitlab-ci.yml
 
