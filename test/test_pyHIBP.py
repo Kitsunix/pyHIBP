@@ -236,8 +236,11 @@ class TestMiscellaneous(object):
         The API will respond the same to all exceeded rate limits across all endpoints; only need to test this
         once.
         """
-        # (x2) get_account_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
+        # (x4) get_account_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
         with pytest.raises(RuntimeError) as excinfo:
+            # A pipeline (oddly) didn't raise with x2 invocations. Four calls back-to-back /should/ raise.
+            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
+            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
             pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
             pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
         assert "HTTP 429" in str(excinfo.value)
