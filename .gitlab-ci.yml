@@ -38,7 +38,7 @@ python3:
     - make dev
     - make tox
 
-codequality:
+code_quality:
   stage: post-test
   image: docker:stable
   variables:
@@ -54,7 +54,7 @@ codequality:
         --volume /var/run/docker.sock:/var/run/docker.sock
         "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
   artifacts:
-    paths: [codeclimate.json]
+    paths: [gl-code-quality-report.json]
     expire_in: 4 weeks
 
 .dependency_scanning:
@@ -76,7 +76,7 @@ codequality:
     paths: [gl-dependency-scanning-report.json]
     expire_in: 4 weeks
 
-.sast:
+sast:
   stage: post-test
   image: docker:stable
   variables:

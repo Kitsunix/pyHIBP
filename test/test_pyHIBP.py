@@ -1,4 +1,3 @@
-import hashlib
 import time
 
 import pytest
@@ -9,16 +8,13 @@ import pyHIBP
 TEST_ACCOUNT = "test@example.com"
 TEST_DOMAIN = "adobe.com"
 TEST_DOMAIN_NAME = "Adobe"
-TEST_PASSWORD = "password"
-TEST_PASSWORD_SHA1_HASH = hashlib.sha1(TEST_PASSWORD.encode('utf-8')).hexdigest()
-# At least, I doubt someone would have used this (only directly specifying here for deterministic tests...)
-TEST_PASSWORD_LIKELY_NOT_COMPROMISED = "&Q?t{%i|n+&qpyP/`/Lyr3<rK|N/M//;u^!fnR+j'lM)A+IGcgRGs[6mLY7yV-|x0bYB&L.JyaJ"
-TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH = hashlib.sha1(TEST_PASSWORD_LIKELY_NOT_COMPROMISED.encode('utf-8')).hexdigest()
+# Very likely to not exist; SHA-1 hash of the SHA-1 hash of the string "password"
+TEST_NONEXISTENT_ACCOUNT_NAME = "353e8061f2befecb6818ba0c034c632fb0bcae1b"
 
 
 @pytest.fixture(autouse=True)
 def rate_limit():
-    # The HIBP API has a ratelimit of 1500ms. Sleep for 2 seconds.
+    # The HIBP API has a rate-limit of 1500ms. Sleep for 2 seconds between each test.
     time.sleep(2)
 
 
@@ -67,7 +63,7 @@ class TestGetBreaches(object):
 
     def test_get_breaches_return_false_if_no_accounts(self):
         # get_account_breaches(account=TEST_PASSWORD_SHA1_HASH, domain=None, truncate_response=False, include_unverified=False):
-        resp = pyHIBP.get_account_breaches(account=TEST_PASSWORD_SHA1_HASH)
+        resp = pyHIBP.get_account_breaches(account=TEST_NONEXISTENT_ACCOUNT_NAME)
         assert not resp
         assert isinstance(resp, bool)
 
@@ -111,7 +107,7 @@ class TestGetAllBreaches(object):
         assert resp[0]['Name'] == TEST_DOMAIN_NAME
 
     def test_get_all_breaches_false_if_domain_does_not_exist(self):
-        resp = pyHIBP.get_all_breaches(domain=TEST_PASSWORD_SHA1_HASH)
+        resp = pyHIBP.get_all_breaches(domain=TEST_NONEXISTENT_ACCOUNT_NAME)
         assert not resp
         assert isinstance(resp, bool)
 
@@ -162,7 +158,7 @@ class TestGetPastes(object):
 
     def test_get_pastes_return_false_if_no_account(self):
         # pyHIBP.get_pastes(email_address=TEST_ACCOUNT):
-        resp = pyHIBP.get_pastes(email_address=TEST_PASSWORD_SHA1_HASH + "@example.invalid")
+        resp = pyHIBP.get_pastes(email_address=TEST_NONEXISTENT_ACCOUNT_NAME + "@example.invalid")
         assert not resp
         assert isinstance(resp, bool)
 
@@ -188,49 +184,8 @@ class TestGetDataClasses(object):
         assert "Passwords" in resp
 
 
-class TestIsPasswordBreached(object):
-    """ NB: Deprecated function ... moved to pwnedpasswords.is_password_breached """
-
-    def test_is_password_breached_password_only_breached(self):
-        # is_password_breached(password=TEST_PASSWORD, sha1_hash=None):
-        assert pyHIBP.is_password_breached(password=TEST_PASSWORD)
-
-    def test_is_password_breached_sha1hash_only_breached(self):
-        # is_password_breached(password=None, sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        assert pyHIBP.is_password_breached(sha1_hash=TEST_PASSWORD_SHA1_HASH)
-
-    def test_is_password_breached_password_only_not_breached(self):
-        # is_password_breached(password=TEST_PASSWORD_LIKELY_NOT_COMPROMISED, sha1_hash=None):
-        assert not pyHIBP.is_password_breached(password=TEST_PASSWORD_LIKELY_NOT_COMPROMISED)
-
-    def test_is_password_breached_sha1hash_only_not_breached(self):
-        # is_password_breached(password=None, sha1_hash=TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH):
-        assert not pyHIBP.is_password_breached(sha1_hash=TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH)
-
-    def test_is_password_breached_password_and_sha1hash_matches(self):
-        # is_password_breached(password=TEST_PASSWORD, sha1_hash=TEST_PASSWORD_SHA1_HASH):
-        assert pyHIBP.is_password_breached(password=TEST_PASSWORD, sha1_hash=TEST_PASSWORD_SHA1_HASH)
-
-    def test_is_password_breached_raise_if_no_params_specified(self):
-        # is_password_breached(password=None, sha1_hash=None)
-        with pytest.raises(AttributeError) as excinfo:
-            pyHIBP.is_password_breached()
-        assert "You must provide either a password or sha1_hash" in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_password_not_string(self):
-        # is_password_breached(password=1, sha1_hash=None)
-        with pytest.raises(AttributeError) as excinfo:
-            pyHIBP.is_password_breached(password=1)
-        assert "password must be a string type." in str(excinfo.value)
-
-    def test_is_password_breached_raise_if_sha1hash_not_string(self):
-        # is_password_breached(password=None, sha1_hash=1)
-        with pytest.raises(AttributeError) as excinfo:
-            pyHIBP.is_password_breached(sha1_hash=1)
-        assert "sha1_hash must be a string type." in str(excinfo.value)
-
-
 class TestMiscellaneous(object):
+    @pytest.mark.xfail(reason="The rate limit exists in the API documentation, but doesn't always seem to trigger in the CI environment.")
     def test_raise_if_rate_limit_exceeded(self):
         """
         The API will respond the same to all exceeded rate limits across all endpoints; only need to test this
