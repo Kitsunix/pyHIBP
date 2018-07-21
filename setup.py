@@ -65,7 +65,7 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://gitlab.com/kfkitsune/pyHIBP',  # Optional
+    url=about['__url__'],  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
@@ -84,7 +84,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',

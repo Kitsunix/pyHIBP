@@ -1,3 +1,10 @@
+v2.1.0 (2018-07-xx)
+------------------
+- **FUNCTION MOVED**: ``is_password_breached()`` has been fully removed from the core ``pyHIBP`` module. It may be accessed
+  from the ``pwnedpasswords`` module.
+- Quasi-internal change: Relocated the GitLab repository to be in a group with the Jupyter Notebooks examples
+  providing an interactive usage example.
+
 v2.0.2 (2018-04-14)
 -------------------
 - **Final deprecation warning**: The ``pyHIBP.is_password_breached`` shim will be removed in a future release. This

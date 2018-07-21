@@ -1,8 +1,8 @@
-include requirements.txt
 include Makefile
 include tox.ini
 include Pipfile
 include .editorconfig
+include .coveragerc
 include LICENSE
 include CHANGELOG.rst
 

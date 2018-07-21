@@ -1,9 +1,6 @@
-import warnings
-
 import requests
 import six
 
-from pyHIBP import pwnedpasswords as pw
 
 HIBP_API_BASE_URI = "https://haveibeenpwned.com/api/v2/"
 HIBP_API_ENDPOINT_BREACH_SINGLE = "breach/"
@@ -25,7 +22,7 @@ def _process_response(response):
     400, 403, 429; NotImplementedError if the API returns an unexpected HTTP status code.
     """
     if response.status_code == 200:
-        # The request was successful (a password/breach/paste was found)
+        # The request was successful (we found an item)
         return True
     elif response.status_code == 404:
         # The request was successful, though the item wasn't found
@@ -159,33 +156,3 @@ def get_data_classes():
     else:
         # This path really shouldn't return false
         raise RuntimeError("HIBP API returned HTTP404 on a request for data classes.")
-
-
-def is_password_breached(password=None, sha1_hash=None):
-    """
-    __DEPRECATED__: Use ``pwnedpasswords.is_password_breached`` instead, which contains additional functionality.
-
-    Checks the HIBP breached password corpus for a breached password. Only the password or sha1_hash
-    parameter is required to be set.
-
-    Note that while the HIBP endpoint does have a originalPasswordIsAHash parameter, passwords submitted
-    to this function will successfully process a supplied SHA1 hash password, since we pre-hash on our end.
-
-    :param password: The raw password to check. Will be converted to a SHA1 hash prior to submission.
-    :param sha1_hash: The SHA1 hash of the password to check.
-    :return: True if the password was in the HIBP password corpus, otherwise False.
-    """
-    warnings.warn("FINAL DEPRECATION WARNING: is_password_breached has moved to the pwnedpasswords module. This shim will be removed in a future release.")
-
-    # Partially re-implement parameter checks to handle this deprecated function wrapper.
-    if not password and not sha1_hash:
-        raise AttributeError("You must provide either a password or sha1_hash.")
-
-    # Pass the variables through to the new function...
-    resp = pw.is_password_breached(password=password, sha1_hash=sha1_hash)
-
-    if resp:
-        # If the response is greater than zero
-        return True
-    else:
-        return False

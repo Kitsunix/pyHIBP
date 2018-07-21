@@ -1,5 +1,5 @@
 # Directories that might be created during testing
-TESTING_DIRS := .tox .eggs .cache build dist htmlcov src/pyHIBP.egg-info
+TESTING_DIRS := .tox .eggs .cache .pytest_cache build dist htmlcov src/pyHIBP.egg-info
 
 # Likewise for files
 TESTING_FILES := .coverage .pipenv-made Pipfile.lock
@@ -12,7 +12,7 @@ build:
 .PHONY: create-pipenv
 create-pipenv:
 	@if [ ! -f .pipenv-made ]; then \
-		echo "Installing..."; \
+		echo "Setting up the pipenv..."; \
 		pipenv run python setup.py develop > /dev/null; \
 		pipenv install --dev; \
 		touch .pipenv-made; \

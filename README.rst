@@ -1,6 +1,12 @@
 pyHIBP (pyHave I Been Pwned)
 ============================
 
+.. image:: https://mybinder.org/badge.svg
+    :target: https://mybinder.org/v2/gl/kitsunix%2FpyHIBP%2FpyHIBP-binder/master
+
+-----------------
+
+
 An interface to Troy Hunt's 'Have I Been Pwned?' (herein referred to as HIBP) public API. A full reference to the API
 specification can be found at the `HIBP API Reference`_.
 
