@@ -1,6 +1,8 @@
 import requests
 import six
 
+from pyHIBP import __version__
+
 
 HIBP_API_BASE_URI = "https://haveibeenpwned.com/api/v2/"
 HIBP_API_ENDPOINT_BREACH_SINGLE = "breach/"
@@ -10,7 +12,9 @@ HIBP_API_ENDPOINT_DATA_CLASSES = "dataclasses"
 HIBP_API_ENDPOINT_PASTES = "pasteaccount/"
 
 # The HIBP API requires that a useragent be set.
-pyHIBP_USERAGENT = "pyHIBP: A Python Interface to the Public HIBP API"
+pyHIBP_USERAGENT = "pyHIBP/{0} (A Python Interface to the Public HIBP API)".format(__version__.__version__)
+# The headers we send along with each request ()
+pyHIBP_HEADERS = {'User-Agent': pyHIBP_USERAGENT}
 
 
 def _process_response(response):
@@ -64,9 +68,7 @@ def get_account_breaches(account=None, domain=None, truncate_response=False, inc
     if domain is not None and not isinstance(domain, six.string_types):
         raise AttributeError("The domain parameter, if specified, must be a string")
 
-    # Build the URI
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHED_ACCT + account
-    headers = {'user-agent': pyHIBP_USERAGENT}
 
     # Build the query string payload (requests drops params when None)
     # (and the HIBP backend ignores those that don't apply)
@@ -75,7 +77,7 @@ def get_account_breaches(account=None, domain=None, truncate_response=False, inc
         "truncateResponse": truncate_response,
         "includeUnverified": include_unverified,
     }
-    resp = requests.get(url=uri, params=query_string_payload, headers=headers)
+    resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS)
     if _process_response(response=resp):
         return resp.json()
     else:
@@ -92,10 +94,10 @@ def get_all_breaches(domain=None):
     """
     if domain is not None and not isinstance(domain, six.string_types):
         raise AttributeError("The domain parameter, if specified, must be a string")
+
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHES
-    headers = {'user-agent': pyHIBP_USERAGENT}
     query_string_payload = {'domain': domain}
-    resp = requests.get(url=uri, params=query_string_payload, headers=headers)
+    resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS)
     # The API will return HTTP200 even if resp.json is length zero.
     if _process_response(response=resp) and len(resp.json()) > 0:
         return resp.json()
@@ -113,9 +115,9 @@ def get_single_breach(breach_name=None):
     """
     if not isinstance(breach_name, six.string_types):
         raise AttributeError("The breach_name must be specified, and be a string")
+
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
-    headers = {'user-agent': pyHIBP_USERAGENT}
-    resp = requests.get(url=uri, headers=headers)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
     if _process_response(response=resp):
         return resp.json()
     else:
@@ -132,9 +134,9 @@ def get_pastes(email_address=None):
     """
     if not isinstance(email_address, six.string_types):
         raise AttributeError("The email address supplied must be provided, and be a string")
+
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
-    headers = {'user-agent': pyHIBP_USERAGENT}
-    resp = requests.get(url=uri, headers=headers)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
     if _process_response(response=resp):
         return resp.json()
     else:
@@ -149,8 +151,7 @@ def get_data_classes():
     A given breach will have one or more of the data classes in the list.
     """
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_DATA_CLASSES
-    headers = {'user-agent': pyHIBP_USERAGENT}
-    resp = requests.get(url=uri, headers=headers)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
     if _process_response(response=resp):
         return resp.json()
     else:
