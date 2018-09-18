@@ -58,9 +58,8 @@ def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None)
         first_5_hash_chars = sha1_hash[0:5]
 
     uri = PWNED_PASSWORDS_API_BASE_URI + PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH + first_5_hash_chars
-    headers = {'user-agent': pyHIBP.pyHIBP_USERAGENT}
 
-    resp = requests.get(url=uri, headers=headers)
+    resp = requests.get(url=uri, headers=pyHIBP.pyHIBP_HEADERS)
 
     # The server response will have a BOM if we don't do this.
     resp.encoding = RESPONSE_ENCODING

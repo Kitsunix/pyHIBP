@@ -1,4 +1,8 @@
-v2.1.0 (2018-07-xx)
+v2.1.1 (2018-09-18)
+-------------------
+- Bug fix: Corrected the capitalization of UA header, which was causing the majority of calls to ``get_account_breaches()`` to fail.
+
+v2.1.0 (2018-07-21)
 ------------------
 - **FUNCTION MOVED**: ``is_password_breached()`` has been fully removed from the core ``pyHIBP`` module. It may be accessed
   from the ``pwnedpasswords`` module.

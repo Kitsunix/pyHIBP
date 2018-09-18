@@ -1,4 +1,4 @@
-image: debian:latest
+image: alpine:latest
 
 stages:
   - test
@@ -7,35 +7,25 @@ stages:
 python2:
   stage: test
   script:
-    # Tox/Pipenv requires the LC_ALL/LANG envars set during the py3 run
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
-    - export TOXENV=py27  # Only Python 2.7.x on this job
-    - apt-get update
-    - apt-get -y install python build-essential curl git
-    - curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
-    - python ./get-pip.py
-    # We need to remove get-pip.py, or check-manifest in tox has a fit
-    - rm ./get-pip.py
+    # Build out the docker image with what we need to get the tests rolling
+    - apk add --update libffi-dev python2 python2-dev make g++ git
+    - wget -O - https://bootstrap.pypa.io/get-pip.py | python2
     - pip install pipenv
-    - make dev
+    # Start the test stuff.
+    # - make dev
+    - export TOXENV=py27
     - make tox
 
 python3:
   stage: test
   script:
-    # Tox/Pipenv requires the LC_ALL/LANG envars set during the py3 run
-    - export LC_ALL=C.UTF-8
-    - export LANG=C.UTF-8
-    - export TOXENV=py35  # Only Python 3.5.x on this job
-    - apt-get update
-    - apt-get -y install python3 build-essential curl git
-    - curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
-    - python3 ./get-pip.py
-    # We need to remove get-pip.py, or check-manifest in tox has a fit
-    - rm ./get-pip.py
+    # Build out the docker image with what we need to get the tests rolling
+    - apk add --update libffi-dev python3 python3-dev make g++ git
+    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
     - pip install pipenv
-    - make dev
+    # Start the test stuff.
+    # - make dev
+    - export TOXENV=py36
     - make tox
 
 code_quality:

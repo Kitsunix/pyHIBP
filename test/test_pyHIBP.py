@@ -185,25 +185,25 @@ class TestGetDataClasses(object):
 
 
 class TestMiscellaneous(object):
-    @pytest.mark.xfail(reason="The rate limit exists in the API documentation, but doesn't always seem to trigger in the CI environment.")
+    @pytest.mark.xfail(reason="The rate limit exists, but responses are also cached.")
     def test_raise_if_rate_limit_exceeded(self):
-        """
-        The API will respond the same to all exceeded rate limits across all endpoints; only need to test this
-        once.
-        """
-        # (x4) get_account_breaches(account=None, domain=None, truncate_response=True, include_unverified=False):
+        """ The API will respond the same to all exceeded rate limits across all endpoints """
+        # The rate limit exists, however all responses are cached; so we need to generate some random "accounts".
+        import random
+        import string
+        sr = random.SystemRandom()
+        rand_accts = ["".join(sr.choice(string.ascii_letters + string.digits) for i in range(32)) for j in range(4)]
+
         with pytest.raises(RuntimeError) as excinfo:
-            # A pipeline (oddly) didn't raise with x2 invocations. Four calls back-to-back /should/ raise.
-            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
-            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
-            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
-            pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
+            for item in rand_accts:
+                pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
         assert "HTTP 429" in str(excinfo.value)
 
     def test_raise_if_useragent_is_not_set(self, monkeypatch):
         # This should never be encountered normally, since we have the module-level variable/constant;
         # That said, test it, since we can, and since we might as well cover the line of code.
-        monkeypatch.setattr(pyHIBP, 'pyHIBP_USERAGENT', None)
+        headers = {'User-Agent': None}
+        monkeypatch.setattr(pyHIBP, 'pyHIBP_HEADERS', headers)
         with pytest.raises(RuntimeError) as excinfo:
             pyHIBP.get_data_classes()
         assert "HTTP 403" in str(excinfo.value)
