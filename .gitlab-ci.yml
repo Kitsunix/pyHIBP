@@ -4,27 +4,46 @@ stages:
   - test
   - post-test
 
+before_script:
+  - date
+
+after_script:
+  - date
+
+# For package caching
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+  PIPENV_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+
 python2:
   stage: test
+  cache:
+    key: "python2"
+    paths:
+      - .cache/
   script:
     # Build out the docker image with what we need to get the tests rolling
     - apk add --update libffi-dev python2 python2-dev make g++ git
+    - python2 -V
     - wget -O - https://bootstrap.pypa.io/get-pip.py | python2
     - pip install pipenv
     # Start the test stuff.
-    # - make dev
     - export TOXENV=py27
     - make tox
 
 python3:
   stage: test
+  cache:
+    key: "python3"
+    paths:
+      - .cache/
   script:
     # Build out the docker image with what we need to get the tests rolling
     - apk add --update libffi-dev python3 python3-dev make g++ git
+    - python3 -V
     - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
     - pip install pipenv
     # Start the test stuff.
-    # - make dev
     - export TOXENV=py36
     - make tox
 

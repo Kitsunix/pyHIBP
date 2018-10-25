@@ -14,7 +14,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 about = {}
@@ -59,7 +59,8 @@ setup(
     #
     # This field corresponds to the "Description" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#description-optional
-    long_description=long_description,  # Optional
+    long_description=long_description,                # Optional
+    long_description_content_type='text/markdown',    # Required for Markdown-formatted text
 
     # This should be a valid link to your project's main homepage.
     #
@@ -142,12 +143,10 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': ['check-manifest',
-                'tox',
+                'flake8',
                 'pytest',
                 'pytest-cov',
-                'check-manifest',
-                "flake8",
-                'vcversioner',
+                'tox',
                 ],
     },
 
