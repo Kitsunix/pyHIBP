@@ -185,20 +185,19 @@ class TestGetDataClasses(object):
 
 
 class TestMiscellaneous(object):
-    @pytest.mark.xfail(reason="The rate limit exists, but responses are also cached.")
+    @pytest.mark.xfail(reason="The rate limit exists in the API docs, but responses are cached, and even attempting to manually (via browser) hit the limit isn't happening.")
     def test_raise_if_rate_limit_exceeded(self):
         """ The API will respond the same to all exceeded rate limits across all endpoints """
         # The rate limit exists, however all responses are cached; so we need to generate some random "accounts".
-        import random
-        import string
-        sr = random.SystemRandom()
-        rand_accts = ["".join(sr.choice(string.ascii_letters + string.digits) for i in range(32)) for j in range(4)]
+        import uuid
+        rand_accts = ["{0}@test-suite.pyHIBP.example.com".format(str(uuid.uuid4())) for j in range(4)]
 
         with pytest.raises(RuntimeError) as excinfo:
             for item in rand_accts:
-                pyHIBP.get_account_breaches(account=TEST_ACCOUNT, truncate_response=True)
+                pyHIBP.get_account_breaches(account=item, truncate_response=True)
         assert "HTTP 429" in str(excinfo.value)
 
+    @pytest.mark.xfail(reason="The API does specify that no UA is supposed to generate a 403, but it doesn't seem to do so in a consistent manner anymore.")
     def test_raise_if_useragent_is_not_set(self, monkeypatch):
         # This should never be encountered normally, since we have the module-level variable/constant;
         # That said, test it, since we can, and since we might as well cover the line of code.

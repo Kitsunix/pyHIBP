@@ -12,8 +12,8 @@ HIBP_API_ENDPOINT_DATA_CLASSES = "dataclasses"
 HIBP_API_ENDPOINT_PASTES = "pasteaccount/"
 
 # The HIBP API requires that a useragent be set.
-pyHIBP_USERAGENT = "pyHIBP/{0} (A Python Interface to the Public HIBP API)".format(__version__.__version__)
-# The headers we send along with each request ()
+pyHIBP_USERAGENT = "pyHIBP/{0} (A Python interface to the public HIBP API)".format(__version__.__version__)
+# The headers we send along with each request
 pyHIBP_HEADERS = {'User-Agent': pyHIBP_USERAGENT}
 
 
@@ -34,18 +34,18 @@ def _process_response(response):
     elif response.status_code == 400:
         # Bad request - The account does not comply with an acceptable format (i.e., it's an empty string)
         raise RuntimeError(
-            "HTTP 400 - Bad request - The account does not comply with an acceptable format (i.e., it's an empty string)")
+            "HTTP 400 - Bad request - The account does not comply with an acceptable format (i.e., it's an empty string).")
     elif response.status_code == 403:
         # Forbidden - no user agent has been specified in the request
-        raise RuntimeError("HTTP 403 - User agent required for HIBP API requests, but no user agent was sent to the API endpoint")
+        raise RuntimeError("HTTP 403 - User agent required for HIBP API requests, but no user agent was sent to the API endpoint.")
     elif response.status_code == 429:
         # Too many requests - the rate limit has been exceeded
         raise RuntimeError(
-            "HTTP 429 - Rate limit exceeded: API rate limit is 1500ms. Retry-After header was: " + response.headers['Retry-After']
+            "HTTP 429 - Rate limit exceeded: API rate limit is 1500ms. Retry-After header was: {0}".format(response.headers['Retry-After'])
         )
     else:
         # We /should/ get one of the above error codes. If not, raise an error.
-        raise NotImplementedError("Returned HTTP status code of " + str(response.status_code) + " was not expected.")
+        raise NotImplementedError("Returned HTTP status code of {0} was not expected.".format(response.status_code))
 
 
 def get_account_breaches(account=None, domain=None, truncate_response=False, include_unverified=False):
@@ -64,9 +64,9 @@ def get_account_breaches(account=None, domain=None, truncate_response=False, inc
     """
     # Account/Domain don't need to be specified, but they must be text if so.
     if account is None or not isinstance(account, six.string_types):
-        raise AttributeError("The account parameter must be specified, and must be a string")
+        raise AttributeError("The account parameter must be specified, and must be a string.")
     if domain is not None and not isinstance(domain, six.string_types):
-        raise AttributeError("The domain parameter, if specified, must be a string")
+        raise AttributeError("The domain parameter, if specified, must be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHED_ACCT + account
 
@@ -93,7 +93,7 @@ def get_all_breaches(domain=None):
     if ``domain`` is specified, but the resultant list would be length zero.
     """
     if domain is not None and not isinstance(domain, six.string_types):
-        raise AttributeError("The domain parameter, if specified, must be a string")
+        raise AttributeError("The domain parameter, if specified, must be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHES
     query_string_payload = {'domain': domain}
@@ -114,7 +114,7 @@ def get_single_breach(breach_name=None):
     database. Boolean False is returned if the specified breach was not found.
     """
     if not isinstance(breach_name, six.string_types):
-        raise AttributeError("The breach_name must be specified, and be a string")
+        raise AttributeError("The breach_name must be specified, and be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
     resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
@@ -133,7 +133,7 @@ def get_pastes(email_address=None):
     address was found in. Boolean False returned if no pastes are detected for the given account.
     """
     if not isinstance(email_address, six.string_types):
-        raise AttributeError("The email address supplied must be provided, and be a string")
+        raise AttributeError("The email address supplied must be provided, and be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
     resp = requests.get(url=uri, headers=pyHIBP_HEADERS)

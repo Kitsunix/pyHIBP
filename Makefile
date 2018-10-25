@@ -43,6 +43,8 @@ test-cov: create-pipenv
 check: create-pipenv
 	pipenv run flake8
 
+# The tox target can skip the pipenv creation (it gets setup during the run)
 .PHONY: tox
 tox: create-pipenv
+	pipenv install tox --dev
 	pipenv run tox

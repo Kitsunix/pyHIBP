@@ -66,7 +66,7 @@ def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None)
 
     if resp.status_code != 200:
         # The HTTP Status should always be 200 for this request
-        raise RuntimeError("Response from the endpoint was not HTTP200; this should not happen. Code was: " + str(resp.status_code))
+        raise RuntimeError("Response from the endpoint was not HTTP200; this should not happen. Code was: {0}".format(resp.status_code))
     elif not sha1_hash:
         # Return the list of hash suffixes.
         return resp.text.split()
