@@ -19,17 +19,17 @@ hashes, you may also consider downloading the raw data files accessible via the 
 Installing
 ----------
 ```bash
-$ pip install pyHIBP
+$ pip install pyhibp
 ```
 
 Example usage
 -------------
-For an interactive example, check out the Jupyter Notebook for [`pyHIBP`](https://mybinder.org/v2/gl/kitsunix%2FpyHIBP%2FpyHIBP-binder/master?filepath=/pyHIBP.ipynb),
-as well as [`pyHIBP.pwnedpasswords`](https://mybinder.org/v2/gl/kitsunix%2FpyHIBP%2FpyHIBP-binder/master?filepath=/pyHIBP.pwnedpasswords.ipynb).
+For an interactive example, check out the Jupyter Notebook for [`pyhibp`](https://mybinder.org/v2/gl/kitsunix%2FpyHIBP%2FpyHIBP-binder/master?filepath=/pyHIBP.ipynb),
+as well as [`pyhibp.pwnedpasswords`](https://mybinder.org/v2/gl/kitsunix%2FpyHIBP%2FpyHIBP-binder/master?filepath=/pyHIBP.pwnedpasswords.ipynb).
 
 ```python
-import pyHIBP
-from pyHIBP import pwnedpasswords as pw
+import pyhibp
+from pyhibp import pwnedpasswords as pw
 
 # Check a password to see if it has been disclosed in a public breach corpus
 resp = pw.is_password_breached(password="secret")
@@ -38,19 +38,19 @@ if resp:
     print("This password was used {0} time(s) before.".format(resp))
 
 # Get breaches that affect a given account
-resp = pyHIBP.get_account_breaches(account="test@example.com", truncate_response=True)
+resp = pyhibp.get_account_breaches(account="test@example.com", truncate_response=True)
 
 # Get all breach information
-resp = pyHIBP.get_all_breaches()
+resp = pyhibp.get_all_breaches()
 
 # Get a single breach
-resp = pyHIBP.get_single_breach(breach_name="Adobe")
+resp = pyhibp.get_single_breach(breach_name="Adobe")
 
 # Get pastes affecting a given email address
-resp = pyHIBP.get_pastes(email_address="test@example.com")
+resp = pyhibp.get_pastes(email_address="test@example.com")
 
 # Get data classes in the HIBP system
-resp = pyHIBP.get_data_classes()
+resp = pyhibp.get_data_classes()
 ```
 
 Developing

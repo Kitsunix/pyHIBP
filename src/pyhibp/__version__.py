@@ -1,9 +1,8 @@
 # flake8: noqa
-"""
-    |_|||)|)
-|)\/| |||)|
-| /
 
-"""
-__version__ = '2.1.1.post1'
+#     |_|||)|)
+# |)\/| |||)|
+# | /
+
+__version__ = '3.0.0'
 __url__ = 'https://gitlab.com/kitsunix/pyHIBP/pyHIBP'
