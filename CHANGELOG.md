@@ -1,6 +1,6 @@
 pyHIBP Changelog
 ================
-v3.0.0 (UNRELEASED)
+v3.0.0 (2018-11-10)
 -------------------
 - **Backwards Incompatible Change**: The package name has been changed to fall in-line with the PEP 8 guideline calling for [all lowercase characters in package/module names](https://www.python.org/dev/peps/pep-0008/#package-and-module-names). Existing code will need to change invocations of ``pyHIBP`` to ``pyhibp``.
   - We will, however, still refer to the package/module as _pyHIBP_ when it is used outside of the context of Python code.
