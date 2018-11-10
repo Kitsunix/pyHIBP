@@ -1,8 +1,8 @@
 # Directories that might be created during testing
-TESTING_DIRS := .tox .eggs .cache .pytest_cache build dist htmlcov src/pyHIBP.egg-info
+TESTING_DIRS := .tox .eggs .cache .pytest_cache build dist htmlcov src/pyhibp.egg-info
 
 # Likewise for files
-TESTING_FILES := .coverage .pipenv-made Pipfile.lock
+TESTING_FILES := .coverage .pipenv-made Pipfile.lock .pytest-junit.xml
 
 build:
 	pipenv run python setup.py sdist bdist_wheel
@@ -37,7 +37,7 @@ test: create-pipenv
 
 .PHONY: test-cov
 test-cov: create-pipenv
-	pipenv run pytest --cov=pyHIBP test/
+	pipenv run pytest --cov=pyhibp test/
 
 .PHONY: check
 check: create-pipenv

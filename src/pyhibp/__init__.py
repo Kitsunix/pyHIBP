@@ -1,8 +1,7 @@
 import requests
 import six
 
-from pyHIBP import __version__
-
+from pyhibp import __version__
 
 HIBP_API_BASE_URI = "https://haveibeenpwned.com/api/v2/"
 HIBP_API_ENDPOINT_BREACH_SINGLE = "breach/"

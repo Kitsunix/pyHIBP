@@ -3,7 +3,7 @@ import hashlib
 import requests
 import six
 
-import pyHIBP
+import pyhibp
 
 PWNED_PASSWORDS_API_BASE_URI = "https://api.pwnedpasswords.com/"
 PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
@@ -40,7 +40,8 @@ def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None)
     and the password was found in the corpus, an Integer representing the number of times the password is in
     the data set; if not found, Integer zero (0) is returned.
     """
-    if not password and not first_5_hash_chars and not sha1_hash:
+    # Parameter validation section
+    if not any([password, first_5_hash_chars, sha1_hash]):
         raise AttributeError("One of password, first_5_hash_chars, or sha1_hash must be provided.")
     elif password is not None and not isinstance(password, six.string_types):
         raise AttributeError("password must be a string type.")
@@ -52,14 +53,15 @@ def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None)
         raise AttributeError("first_5_hash_chars must be of length 5.")
 
     if password:
-        sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+        sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest()
     if sha1_hash:
+        # The HIBP API stores the SHA-1 hashes in uppercase, so ensure we have it as uppercase here
         sha1_hash = sha1_hash.upper()
         first_5_hash_chars = sha1_hash[0:5]
 
     uri = PWNED_PASSWORDS_API_BASE_URI + PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH + first_5_hash_chars
 
-    resp = requests.get(url=uri, headers=pyHIBP.pyHIBP_HEADERS)
+    resp = requests.get(url=uri, headers=pyhibp.pyHIBP_HEADERS)
 
     # The server response will have a BOM if we don't do this.
     resp.encoding = RESPONSE_ENCODING

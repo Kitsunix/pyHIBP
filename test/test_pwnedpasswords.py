@@ -3,12 +3,12 @@ import time
 
 import pytest
 
-from pyHIBP import pwnedpasswords as pw
+from pyhibp import pwnedpasswords as pw
 
 
 TEST_PASSWORD = "password"
 TEST_PASSWORD_SHA1_HASH = hashlib.sha1(TEST_PASSWORD.encode('utf-8')).hexdigest()
-# At least, I doubt someone would have used this (only directly specifying here for deterministic tests...)
+# At least, I doubt someone would have used this (only directly specifying here for deterministic tests)
 TEST_PASSWORD_LIKELY_NOT_COMPROMISED = "&Q?t{%i|n+&qpyP/`/Lyr3<rK|N/M//;u^!fnR+j'lM)A+IGcgRGs[6mLY7yV-|x0bYB&L.JyaJ"
 TEST_PASSWORD_LIKELY_NOT_COMPROMISED_HASH = hashlib.sha1(TEST_PASSWORD_LIKELY_NOT_COMPROMISED.encode('utf-8')).hexdigest()
 

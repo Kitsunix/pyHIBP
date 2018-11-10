@@ -15,7 +15,14 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
   PIPENV_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
 
+.junit_test_results: &junit_test_results
+  artifacts:
+    reports:
+      junit: .pytest-junit.xml
+    expire_in: 4 weeks
+
 python2:
+  <<: *junit_test_results
   stage: test
   cache:
     key: "python2"
@@ -32,6 +39,7 @@ python2:
     - make tox
 
 python3:
+  <<: *junit_test_results
   stage: test
   cache:
     key: "python3"

@@ -1,6 +1,6 @@
+include *.md
 include .coveragerc
 include .editorconfig
-include CHANGELOG.rst
 include LICENSE
 include Makefile
 include Pipfile

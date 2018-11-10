@@ -10,6 +10,7 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+import ast
 
 here = path.abspath(path.dirname(__file__))
 
@@ -18,8 +19,18 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 about = {}
-with open(path.join(here, 'src/pyHIBP', '__version__.py'), 'r', 'utf-8') as f:
-    exec(f.read(), about)
+with open(path.join(here, 'src/pyhibp', '__version__.py'), 'r', 'utf-8') as f:
+    source = f.read()
+    module = ast.parse(source)
+    for statement in module.body:
+        if not isinstance(statement, ast.Assign):
+            raise SyntaxError("Unexpected node in version configuration")
+        target = statement.targets[0]
+        if len(statement.targets) != 1 or not isinstance(target, ast.Name):
+            raise SyntaxError("Unexpected assignment target in version configuration")
+        if target.id not in {"__version__", "__url__"}:
+            raise SyntaxError("Unexpected key in version configuration: %r" % (target.id,))
+        about[target.id] = ast.literal_eval(statement.value)
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
@@ -36,7 +47,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='pyHIBP',  # Required
+    name='pyhibp',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -129,7 +140,7 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "requests >= 2.18.4",
+        "requests >= 2.20.0",
         "six >= 1.11.0",
     ],  # Optional
 
@@ -142,12 +153,13 @@ setup(
     # Similar to `install_requires` above, these must be valid existing
     # projects.
     extras_require={  # Optional
-        'dev': ['check-manifest',
-                'flake8',
-                'pytest',
-                'pytest-cov',
-                'tox',
-                ],
+        'dev': [
+            'check-manifest',
+            'flake8',
+            'pytest',
+            'pytest-cov',
+            'tox',
+        ],
     },
 
     # If there are data files included in your packages that need to be
