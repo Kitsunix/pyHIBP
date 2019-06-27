@@ -1,11 +1,34 @@
 pyHIBP Changelog
 ================
+v3.1.0 (In progress...)
+-----------------------
+- **New function**: ``pwnedpasswords.suffix_search(hash_prefix=prefix)`` was created in order to have a dedicated function
+  return the suffix list.
+- **Function modification notice**: ``pwnedpasswords.is_password_breached`` will be modified in an upcoming release to
+  remove the ability to search for suffixes; use ``suffix_search(hash_prefix=prefix)`` instead. The parameter
+  ``first_5_hash_chars`` will be removed as a consequence.
+- **Upcoming return type change for empty sets**: For the functions ``get_account_breaches``, ``get_all_breaches``,
+  ``get_single_breach``, and ``get_pastes``--all contained in the ``pyhibp`` module--when no items would be returned
+  from the HIBP backend, the returned item will be an empty object matching the standard return type for the function,
+  and not a Boolean ``False``. This will occur when ``v4.0.0`` is released. Return types will be:
+    - ``get_account_breaches`` -> ``[] / list``
+    - ``get_all_breaches`` -> ``[] / list``
+    - ``get_single_breach`` -> ``{} / dict``
+    - ``get_pastes`` -> ``[] / list``
+- As a reminder, Python 2.7 support will be dropped from support in the near future. This will occur at the same time
+  as the removal of the range search functionality available via ``pwnedpasswords.is_password_breached(first_5_hash_chars=prefix)``
+  so as to minimize disruption.
+
 v3.0.0 (2018-11-10)
 -------------------
-- **Backwards Incompatible Change**: The package name has been changed to fall in-line with the PEP 8 guideline calling for [all lowercase characters in package/module names](https://www.python.org/dev/peps/pep-0008/#package-and-module-names). Existing code will need to change invocations of ``pyHIBP`` to ``pyhibp``.
-  - We will, however, still refer to the package/module as _pyHIBP_ when it is used outside of the context of Python code.
-- **Future Python 2 Deprecation**: As per PEP 373, [Python 2.7.x support ends on 2020-01-01](https://www.python.org/dev/peps/pep-0373/#maintenance-releases). That being said, we will be dropping Python 2 as a supported version _prior_ to this date.
-- The `requests` dependency has been bumped to require versions at or above `2.20.0` (due to CVE-2018-18074 affecting the `requests` package for older versions).
+- **Backwards Incompatible Change**: The package name has been changed to fall in-line with the PEP 8 guideline calling
+  for [all lowercase characters in package/module names](https://www.python.org/dev/peps/pep-0008/#package-and-module-names).
+  Existing code will need to change invocations of ``pyHIBP`` to ``pyhibp``.
+    - We will, however, still refer to the package/module as _pyHIBP_ when it is used outside of the context of Python code.
+- **Future Python 2 Deprecation**: As per PEP 373, [Python 2.7.x support ends on 2020-01-01](https://www.python.org/dev/peps/pep-0373/#maintenance-releases).
+  That being said, we will be dropping Python 2 as a supported version _prior_ to this date.
+- The `requests` dependency has been bumped to require versions at or above `2.20.0` (due to CVE-2018-18074 affecting
+  the `requests` package for older versions).
 
 v2.1.1 (2018-09-18)
 -------------------

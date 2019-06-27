@@ -8,13 +8,13 @@ pyHIBP (pyHave I Been Pwned)
 A Python interface to Troy Hunt's 'Have I Been Pwned?' (HIBP) public API. A full reference to the API
 specification can be found at the [HIBP API Reference](https://haveibeenpwned.com/API/v2).
 
-This module detects when the rate limit of the API has been hit, and raises a RuntimeError when the limit is exceeded,
-or when another API-defined error condition is encountered based on the submitted data. Calls
-to the module returning Boolean `True` or the object as decoded from the API query (currently, lists), represent
-a detection that a breached account/paste/password was found; Boolean `False` means that the item was not found.
+This module detects when the rate limit of the API has been hit, and raises a RuntimeError when the limit
+is exceeded, or when another API-defined error condition is encountered based on the submitted data. When
+data is found from a call, the data returned will be in the format as retrieved from the endpoint, documented
+in the return-type information for the relevant function.
 
 Note that the `pwnedpasswords` API backend does not have a rate limit. If you are intending to bulk-query passwords or
-hashes, you may also consider downloading the raw data files accessible via the [Pwned Passwords](https://haveibeenpwned.com/Passwords) page.
+hashes, you should consider downloading the raw data files accessible via the [Pwned Passwords](https://haveibeenpwned.com/Passwords) page.
 
 Installing
 ----------
