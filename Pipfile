@@ -1,18 +1,13 @@
 [[source]]
-
 verify_ssl = true
 url = "https://pypi.python.org/simple"
 name = "pypi"
 
-
 [packages]
-
 requests = ">=2.20.0"
 six = ">=1.11.0"
 
-
 [dev-packages]
-
 tox = "*"
 pytest = "*"
 pytest-cov = "*"

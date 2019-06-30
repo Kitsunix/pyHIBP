@@ -5,6 +5,10 @@ __pycache__/
 
 # IDEs / PyCharm
 .idea
+.vscode
+
+# Pipenv lock file
+Pipfile.lock
 
 # C extensions
 *.so

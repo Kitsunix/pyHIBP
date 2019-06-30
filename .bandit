@@ -1,2 +1,8 @@
 [bandit]
-skips: B101,B106
+# B101: Test for use of assert
+#       (Reason: The ``assert`` keyword is used in tests.)
+# B106: Test for use of hard-coded password function arguments
+#       (Reason: pyhibp deals with checking passwords; it's the correct arg name)
+# B303: Use of insecure MD2, MD4, MD5, or SHA1 hash function.
+#       (Reason: The HIBP backend stores passwords in SHA1, and we use SHA1 to compute the partial hash which is sent to the backend.)
+skips: B101,B106,B303
