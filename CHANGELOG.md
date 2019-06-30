@@ -1,6 +1,6 @@
 pyHIBP Changelog
 ================
-v3.1.0 (In progress...)
+v3.1.0 (2019-06-30)
 -----------------------
 - **New function**: ``pwnedpasswords.suffix_search(hash_prefix=prefix)`` was created in order to have a dedicated function
   return the suffix list.
