@@ -67,29 +67,26 @@ class TestGetAccountBreaches(object):
         # get_account_breaches(account=TEST_PASSWORD_SHA1_HASH, domain=None, truncate_response=False, include_unverified=False):
         resp = pyhibp.get_account_breaches(account=TEST_NONEXISTENT_ACCOUNT_NAME)
         assert not resp
-        assert isinstance(resp, bool)
-        # TODO: v4.0.0:
-        # assert not resp
-        # assert isinstance(resp, list)
+        assert isinstance(resp, list)
 
     def test_get_breaches_raise_if_account_is_not_specified(self):
         # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
-            # Will raise because the account must be a string (specifically, six.text_type)
+            # Will raise because the account must be a string
             pyhibp.get_account_breaches(account=None)
         assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
     def test_get_breaches_raise_if_account_is_not_string(self):
         # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
-            # Will raise because the account must be a string (specifically, six.text_type)
+            # Will raise because the account must be a string
             pyhibp.get_account_breaches(account=1)
         assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
     def test_get_breaches_raise_if_domain_is_not_string(self):
         # get_account_breaches(account=TEST_ACCOUNT, domain=1, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
-            # Will raise because the domain must be a string (specifically, six.text_type)
+            # Will raise because the domain must be a string
             pyhibp.get_account_breaches(account=TEST_ACCOUNT, domain=1)
         assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
 
@@ -117,15 +114,12 @@ class TestGetAllBreaches(object):
     def test_get_all_breaches_false_if_domain_does_not_exist(self):
         resp = pyhibp.get_all_breaches(domain=TEST_NONEXISTENT_ACCOUNT_NAME)
         assert not resp
-        assert isinstance(resp, bool)
-        # TODO: v4.0.0:
-        # assert not resp
-        # assert isinstance(resp, list)
+        assert isinstance(resp, list)
 
     def test_get_all_breaches_raise_if_not_string(self):
         # def get_all_breaches(domain=1):
         with pytest.raises(AttributeError) as excinfo:
-            # Will raise because the domain must be a string (specifically, six.text_type)
+            # Will raise because the domain must be a string
             pyhibp.get_all_breaches(domain=1)
         assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
 
@@ -142,11 +136,8 @@ class TestGetSingleBreach(object):
     def test_get_single_breach_when_breach_does_not_exist(self):
         # get_single_breach(breach_name="ThisShouldNotExist")
         resp = pyhibp.get_single_breach(breach_name="ThisShouldNotExist")
-        # Boolean False will be returned from the above (as there is no breach named what we gave it).
         assert not resp
-        # TODO: v4.0.0:
-        # assert not resp
-        # assert isinstance(resp, dict)
+        assert isinstance(resp, dict)
 
     def test_get_single_breach_raise_when_breach_name_not_specified(self):
         # get_single_breach()
@@ -158,7 +149,7 @@ class TestGetSingleBreach(object):
     def test_get_single_breach_raise_when_breach_name_is_not_a_string(self):
         # get_single_breach(breach_name=1)
         with pytest.raises(AttributeError) as excinfo:
-            # Will raise because the breach_name must be a string (specifically, six.text_type)
+            # Will raise because the breach_name must be a string
             pyhibp.get_single_breach(breach_name=1)
         assert "The breach_name must be specified, and be a string" in str(excinfo.value)
 
@@ -177,10 +168,7 @@ class TestGetPastes(object):
         # get_pastes(email_address=TEST_ACCOUNT):
         resp = pyhibp.get_pastes(email_address=TEST_NONEXISTENT_ACCOUNT_NAME + "@example.invalid")
         assert not resp
-        assert isinstance(resp, bool)
-        # TODO: v4.0.0:
-        # assert not resp
-        # assert isinstance(resp, list)
+        assert isinstance(resp, list)
 
     @pytest.mark.usefixtures('sleep')
     def test_get_pastes_raise_if_email_not_specified(self):

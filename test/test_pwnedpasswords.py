@@ -19,47 +19,19 @@ class TestIsPasswordBreached(object):
         # is_password_breached(password=None, first_5_hash_chars=None, sha1_hash=None):
         with pytest.raises(AttributeError) as execinfo:
             pw.is_password_breached()
-        assert "One of password, sha1_hash, or first_5_hash_chars must be provided." in str(execinfo.value)
+        assert "Either password or sha1_hash must be provided." in str(execinfo.value)
 
     def test_password_not_string_raises(self):
         # is_password_breached(password=123, first_5_hash_chars=None, sha1_hash=None):
         with pytest.raises(AttributeError) as execinfo:
             pw.is_password_breached(password=123)
-        assert "password must be a string type." in str(execinfo.value)
-
-    def test_first_5_hash_chars_not_string_raises(self):
-        # TODO: Deprecated: To be removed in next major release in favor of pw.suffix_search()
-        # is_password_breached(password=None, first_5_hash_chars=123, sha1_hash=None):
-        with pytest.raises(AttributeError) as execinfo:
-            pw.is_password_breached(first_5_hash_chars=123)
-        assert "first_5_hash_chars must be a string type." in str(execinfo.value)
-
-    def test_first_5_hash_chars_not_length_five_raises(self):
-        # TODO: Deprecated: To be removed in next major release in favor of pw.suffix_search()
-        # is_password_breached(password=None, first_5_hash_chars="123456", sha1_hash=None):
-        with pytest.raises(AttributeError) as execinfo:
-            pw.is_password_breached(first_5_hash_chars="123456")
-        assert "first_5_hash_chars must be of length 5." in str(execinfo.value)
+        assert "password must be a string." in str(execinfo.value)
 
     def test_sha1_hash_not_string_raises(self):
         # is_password_breached(password=None, first_5_hash_chars=None, sha1_hash=123):
         with pytest.raises(AttributeError) as execinfo:
             pw.is_password_breached(sha1_hash=123)
-        assert "sha1_hash must be a string type." in str(execinfo.value)
-
-    @pytest.mark.usefixtures('sleep')
-    def test_list_of_partial_hashes_returned_with_5chars(self):
-        # TODO: Deprecated: To be removed in next major release in favor of pw.suffix_search()
-        # is_password_breached(password=None, first_5_hash_chars=TEST_PASSWORD_SHA1_HASH[0:5], sha1_hash=None):
-        resp = pw.is_password_breached(first_5_hash_chars=TEST_PASSWORD_SHA1_HASH[0:5])
-        assert isinstance(resp, list)
-        assert len(resp) > 100
-        match_found = False
-        for entry in resp:
-            if TEST_PASSWORD_SHA1_HASH[5:] in entry.lower():
-                match_found = True
-                break
-        assert match_found
+        assert "sha1_hash must be a string." in str(execinfo.value)
 
     @pytest.mark.usefixtures('sleep')
     def test_provide_password_to_function(self):
@@ -91,13 +63,13 @@ class TestSuffixSearch(object):
         # def suffix_search(hash_prefix=None):
         with pytest.raises(AttributeError) as execinfo:
             pw.suffix_search()
-        assert "hash_prefix must be a supplied, and be a string-type." in str(execinfo.value)
+        assert "hash_prefix must be a supplied, and be a string." in str(execinfo.value)
 
     def test_hash_prefix_not_string_raises(self):
         # def suffix_search(hash_prefix=123):
         with pytest.raises(AttributeError) as execinfo:
             pw.suffix_search(hash_prefix=123)
-        assert "hash_prefix must be a supplied, and be a string-type." in str(execinfo.value)
+        assert "hash_prefix must be a supplied, and be a string." in str(execinfo.value)
 
     def test_first_5_hash_chars_not_length_five_raises(self):
         # suffix_search(hash_prefix="123456"):

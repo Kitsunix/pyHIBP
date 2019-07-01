@@ -1,5 +1,4 @@
 import requests
-import six
 
 from pyhibp import __version__
 
@@ -16,7 +15,7 @@ pyHIBP_USERAGENT = "pyHIBP/{0} (A Python interface to the public HIBP API)".form
 pyHIBP_HEADERS = {'User-Agent': pyHIBP_USERAGENT}
 
 
-def _process_response(response):
+def _process_response(response) -> bool:
     """
     Process the `requests` response from the call to the HIBP API endpoints.
 
@@ -48,7 +47,7 @@ def _process_response(response):
         raise NotImplementedError("Returned HTTP status code of {0} was not expected.".format(response.status_code))
 
 
-def get_account_breaches(account=None, domain=None, truncate_response=False, include_unverified=False):
+def get_account_breaches(account: str = None, domain: str = None, truncate_response: bool = False, include_unverified: bool = False) -> list:
     """
     Gets breaches for a specified account from the HIBP system, optionally restricting the returned results
     to a specified domain.
@@ -64,9 +63,9 @@ def get_account_breaches(account=None, domain=None, truncate_response=False, inc
     :rtype: list
     """
     # Account/Domain don't need to be specified, but they must be text if so.
-    if account is None or not isinstance(account, six.string_types):
+    if account is None or not isinstance(account, str):
         raise AttributeError("The account parameter must be specified, and must be a string.")
-    if domain is not None and not isinstance(domain, six.string_types):
+    if domain is not None and not isinstance(domain, str):
         raise AttributeError("The domain parameter, if specified, must be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHED_ACCT + account
@@ -79,14 +78,14 @@ def get_account_breaches(account=None, domain=None, truncate_response=False, inc
         "includeUnverified": include_unverified,
     }
     resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS)
+
     if _process_response(response=resp):
         return resp.json()
     else:
-        # TODO: v4.0.0: return []
-        return False
+        return []
 
 
-def get_all_breaches(domain=None):
+def get_all_breaches(domain: str = None) -> list:
     """
     Returns a listing of all sites breached in the HIBP database.
 
@@ -95,21 +94,21 @@ def get_all_breaches(domain=None):
     if ``domain`` is specified, but the resultant list would be length zero.
     :rtype: list
     """
-    if domain is not None and not isinstance(domain, six.string_types):
+    if domain is not None and not isinstance(domain, str):
         raise AttributeError("The domain parameter, if specified, must be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHES
     query_string_payload = {'domain': domain}
     resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS)
+
     # The API will return HTTP200 even if resp.json is length zero.
     if _process_response(response=resp) and len(resp.json()) > 0:
         return resp.json()
     else:
-        # TODO: v4.0.0: return []
-        return False
+        return []
 
 
-def get_single_breach(breach_name=None):
+def get_single_breach(breach_name: str = None) -> dict:
     """
     Returns a single breach's information from the HIBP's database.
 
@@ -118,19 +117,19 @@ def get_single_breach(breach_name=None):
     database. Boolean False is returned if the specified breach was not found.
     :rtype: dict
     """
-    if not isinstance(breach_name, six.string_types):
+    if not isinstance(breach_name, str):
         raise AttributeError("The breach_name must be specified, and be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
     resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
+
     if _process_response(response=resp):
         return resp.json()
     else:
-        # TODO: v4.0.0: return {}
-        return False
+        return {}
 
 
-def get_pastes(email_address=None):
+def get_pastes(email_address: str = None) -> list:
     """
     Retrieve all pastes for a specified email address.
 
@@ -139,19 +138,19 @@ def get_pastes(email_address=None):
     address was found in. Boolean False returned if no pastes are detected for the given account.
     :rtype: list
     """
-    if not isinstance(email_address, six.string_types):
+    if not isinstance(email_address, str):
         raise AttributeError("The email address supplied must be provided, and be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
     resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
+
     if _process_response(response=resp):
         return resp.json()
     else:
-        # TODO: v4.0.0: return []
-        return False
+        return []
 
 
-def get_data_classes():
+def get_data_classes() -> list:
     """
     Retrieves all available data classes from the HIBP API.
 
@@ -161,6 +160,7 @@ def get_data_classes():
     """
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_DATA_CLASSES
     resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
+
     if _process_response(response=resp):
         return resp.json()
     else:

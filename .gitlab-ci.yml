@@ -19,24 +19,6 @@ variables:
       junit: .pytest-junit.xml
     expire_in: 4 weeks
 
-python27:
-  <<: *junit_test_results
-  stage: test
-  image: python:2.7-alpine
-  cache:
-    key: "python2"
-    paths:
-      - .cache/
-  script:
-    # Build out the docker image with what we need to get the tests rolling
-    - apk add --update libffi-dev python2 python2-dev make g++ git
-    - python2 -V
-    - wget -O - https://bootstrap.pypa.io/get-pip.py | python2
-    - pip install pipenv
-    # Start the test stuff.
-    - export TOXENV=py27
-    - make tox
-
 python35:
   <<: *junit_test_results
   stage: test
@@ -55,7 +37,7 @@ python35:
     - export TOXENV=py35
     - make tox
 
-.python36:
+python36:
   <<: *junit_test_results
   stage: test
   image: python:3.6-alpine
@@ -73,7 +55,7 @@ python35:
     - export TOXENV=py36
     - make tox
 
-.python37:
+python37:
   <<: *junit_test_results
   stage: test
   image: python:3.7-alpine

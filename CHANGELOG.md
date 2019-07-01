@@ -1,5 +1,19 @@
 pyHIBP Changelog
 ================
+v4.0.0.dev (In progress...)
+------------------------
+- **Python 2.7 Support Dropped**: With Python 2.7 support being dropped in January 2020, as stated in the notes for v3.0.0
+  and v3.1.0, ``pyhibp`` is dropping support for Python 2.7.
+- **Function modified**: ``suffix_search(hash_prefix=prefix)`` is now the method to search for hash suffixes. The compatability
+  shim left when introducing the function in v3.1.0 has been removed (and thus ``first_5_hash_chars`` is no longer a valid
+  parameter to the function ``is_password_breached()``).
+- **Return type changes**: As per the changelog from v3.1.0, the return type for empty sets has changed as follows for the
+  following functions in the ``pyhibp`` module:
+    - ``get_account_breaches`` -> ``[] / list``
+    - ``get_all_breaches`` -> ``[] / list``
+    - ``get_single_breach`` -> ``{} / dict``
+    - ``get_pastes`` -> ``[] / list``
+
 v3.1.0 (2019-06-30)
 -----------------------
 - **New function**: ``pwnedpasswords.suffix_search(hash_prefix=prefix)`` was created in order to have a dedicated function
