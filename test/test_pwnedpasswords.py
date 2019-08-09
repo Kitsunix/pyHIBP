@@ -2,6 +2,7 @@ import hashlib
 
 import pytest
 
+import pyhibp
 from pyhibp import pwnedpasswords as pw
 
 # While the pwnedpasswords endpoint does not have a limit, be kind anyway. 1 second sleep.
@@ -92,3 +93,14 @@ class TestSuffixSearch(object):
                 match_found = True
                 break
         assert match_found
+
+    def test_user_agent_must_be_set_or_raise(self, monkeypatch):
+        """
+        The HIBP backend requires a User-Agent; ensure we're forcing one to be set.
+
+        Additionally, `is_password_breached` calls `suffix_search`, so we only need to check this function.
+        """
+        monkeypatch.setitem(pyhibp.pyHIBP_HEADERS, 'User-Agent', None)
+        with pytest.raises(RuntimeError) as execinfo:
+            pw.suffix_search(hash_prefix=TEST_PASSWORD_SHA1_HASH[0:5])
+        assert "The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first." in str(execinfo.value)
