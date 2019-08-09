@@ -26,7 +26,7 @@ def _require_user_agent(function):
     """
     def inner(*args, **kwargs):
         if pyHIBP_HEADERS.get("User-Agent") is None:
-            raise RuntimeError("The User-Agent must be set. Call pyhibp.set_user_agent() first.")
+            raise RuntimeError("The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first.")
         return function(*args, **kwargs)
     return inner
 
