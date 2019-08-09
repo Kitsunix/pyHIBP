@@ -73,30 +73,16 @@ python37:
     - export TOXENV=py37
     - make tox
 
-code_quality:
-  stage: post-test
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-  allow_failure: true
-  services:
-    - docker:stable-dind
-  script:
-    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
-    - docker run
-        --env SOURCE_CODE="$PWD"
-        --volume "$PWD":/code
-        --volume /var/run/docker.sock:/var/run/docker.sock
-        "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
-    expire_in: 4 weeks
-
 include:
-  template: SAST.gitlab-ci.yml
+  - template: SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
 
 sast:
   stage: post-test
   artifacts:
-    expire_in: 4 weeks
+    expire_in: 2 weeks
+
+code_quality:
+  stage: post-test
+  artifacts:
+    expire_in: 2 weeks
