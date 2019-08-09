@@ -17,6 +17,14 @@ TEST_NONEXISTENT_ACCOUNT_NAME = "353e8061f2befecb6818ba0c034c632fb0bcae1b"
 
 class TestGetAccountBreaches(object):
     @pytest.mark.usefixtures('sleep')
+    def test_get_breaches_api_key_must_be_specified_or_raise(self):
+        with pytest.raises(RuntimeError) as excinfo:
+            # Will raise because an API key has not been set on this request.
+            pyhibp.get_account_breaches(account=TEST_ACCOUNT)
+        assert "A HIBP API key is required for this call. Call pyhibp.set_api_key(key=your_key) first." in str(excinfo.value)
+
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
+    @pytest.mark.usefixtures('sleep')
     def test_get_breaches_account(self):
         # get_account_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=False, include_unverified=False):
         resp = pyhibp.get_account_breaches(account=TEST_ACCOUNT)
@@ -25,6 +33,7 @@ class TestGetAccountBreaches(object):
         assert len(resp) >= 20
         assert isinstance(resp[0], dict)
 
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
     @pytest.mark.usefixtures('sleep')
     def test_get_breaches_account_with_domain(self):
         # get_account_breaches(account=TEST_ACCOUNT, domain=TEST_DOMAIN, truncate_response=False, include_unverified=False):
@@ -35,6 +44,7 @@ class TestGetAccountBreaches(object):
         assert isinstance(resp[0], dict)
         assert resp[0]['Name'] == TEST_DOMAIN_NAME
 
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
     @pytest.mark.usefixtures('sleep')
     def test_get_breaches_account_with_truncation(self):
         # get_account_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=True, include_unverified=False):
@@ -48,6 +58,7 @@ class TestGetAccountBreaches(object):
         assert 'Name' in item
         assert 'DataClasses' not in item
 
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
     @pytest.mark.usefixtures('sleep')
     def test_get_breaches_retrieve_all_breaches_with_unverified(self):
         # get_account_breaches(account=TEST_ACCOUNT, domain=None, truncate_response=False, include_unverified=True):
@@ -62,6 +73,7 @@ class TestGetAccountBreaches(object):
                 break
         assert has_unverified
 
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
     @pytest.mark.usefixtures('sleep')
     def test_get_breaches_return_false_if_no_accounts(self):
         # get_account_breaches(account=TEST_PASSWORD_SHA1_HASH, domain=None, truncate_response=False, include_unverified=False):
@@ -70,25 +82,43 @@ class TestGetAccountBreaches(object):
         assert isinstance(resp, list)
 
     def test_get_breaches_raise_if_account_is_not_specified(self):
+        # Set a fake API key (since this is an error path)
+        pyhibp.set_api_key(key="NotARealKey")
+
         # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the account must be a string
             pyhibp.get_account_breaches(account=None)
         assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
+        # Unset the fake key
+        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
+
     def test_get_breaches_raise_if_account_is_not_string(self):
+        # Set a fake API key (since this is an error path)
+        pyhibp.set_api_key(key="NotARealKey")
+
         # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the account must be a string
             pyhibp.get_account_breaches(account=1)
         assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
+        # Unset the fake key
+        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
+
     def test_get_breaches_raise_if_domain_is_not_string(self):
+        # Set a fake API key (since this is an error path)
+        pyhibp.set_api_key(key="NotARealKey")
+
         # get_account_breaches(account=TEST_ACCOUNT, domain=1, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the domain must be a string
             pyhibp.get_account_breaches(account=TEST_ACCOUNT, domain=1)
         assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
+
+        # Unset the fake key
+        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
 
 
 class TestGetAllBreaches(object):
@@ -156,7 +186,16 @@ class TestGetSingleBreach(object):
 
 class TestGetPastes(object):
     @pytest.mark.usefixtures('sleep')
+    def test_get_pastes_api_key_must_be_specified_or_raise(self):
+        with pytest.raises(RuntimeError) as excinfo:
+            # Will raise because an API key has not been set on this request.
+            pyhibp.get_pastes(email_address=TEST_ACCOUNT)
+        assert "A HIBP API key is required for this call. Call pyhibp.set_api_key(key=your_key) first." in str(excinfo.value)
+
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
+    @pytest.mark.usefixtures('sleep')
     def test_get_pastes(self):
+        print(pyhibp.pyHIBP_HEADERS)
         # get_pastes(email_address=TEST_ACCOUNT):
         resp = pyhibp.get_pastes(email_address=TEST_ACCOUNT)
         # The return value is a list, containing multiple dicts (1 or more)
@@ -164,24 +203,38 @@ class TestGetPastes(object):
         for item in resp:
             assert isinstance(item, dict)
 
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
+    @pytest.mark.usefixtures('sleep')
     def test_get_pastes_return_false_if_no_account(self):
+        print(pyhibp.pyHIBP_HEADERS)
         # get_pastes(email_address=TEST_ACCOUNT):
         resp = pyhibp.get_pastes(email_address=TEST_NONEXISTENT_ACCOUNT_NAME + "@example.invalid")
         assert not resp
         assert isinstance(resp, list)
 
-    @pytest.mark.usefixtures('sleep')
     def test_get_pastes_raise_if_email_not_specified(self):
+        # Set a fake API key (since this is an error path)
+        pyhibp.set_api_key(key="NotARealKey")
+
         # get_pastes():
         with pytest.raises(AttributeError) as excinfo:
             pyhibp.get_pastes()
         assert "The email address supplied must be provided, and be a string" in str(excinfo.value)
 
+        # Unset the fake key
+        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
+
     def test_get_pastes_raise_if_email_not_string(self):
+        # Set a fake API key (since this is an error path)
+        pyhibp.set_api_key(key="NotARealKey")
+
         # get_pastes(email_address=1):
         with pytest.raises(AttributeError) as excinfo:
             pyhibp.get_pastes(email_address=1)
         assert "The email address supplied must be provided, and be a string" in str(excinfo.value)
+
+        # Unset the fake key
+        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
 
 
 class TestGetDataClasses(object):
@@ -207,16 +260,7 @@ class TestMiscellaneous(object):
                 pyhibp.get_account_breaches(account=item, truncate_response=True)
         assert "HTTP 429" in str(excinfo.value)
 
-    @pytest.mark.usefixtures('sleep')
-    def test_raise_if_useragent_is_not_set(self, monkeypatch):
-        # This should never be encountered normally, since we have the module-level variable/constant;
-        # That said, test it, since we can, and since we might as well cover the line of code.
-        head = {'User-Agent': ''}
-        monkeypatch.setattr(pyhibp, 'pyHIBP_HEADERS', head)
-        with pytest.raises(RuntimeError) as excinfo:
-            pyhibp.get_account_breaches(account="{0}@test-suite.pyhibp.example.com".format(str(uuid.uuid4())))
-        assert "HTTP 403" in str(excinfo.value)
-
+    @pytest.mark.skip("Unable to test due to lack of purchased API key")
     @pytest.mark.usefixtures('sleep')
     def test_raise_if_invalid_format_submitted(self):
         # For example, if a null (0x00) character is submitted to an endpoint.

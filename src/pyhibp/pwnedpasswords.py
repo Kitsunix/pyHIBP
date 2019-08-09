@@ -3,6 +3,7 @@ import hashlib
 import requests
 
 import pyhibp
+from pyhibp import _require_user_agent
 
 PWNED_PASSWORDS_API_BASE_URI = "https://api.pwnedpasswords.com/"
 PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
@@ -63,6 +64,7 @@ def is_password_breached(password: str = None, sha1_hash: str = None) -> int:
     return 0
 
 
+@_require_user_agent
 def suffix_search(hash_prefix: str = None) -> list:
     """
     Returns a list of SHA-1 hash suffixes, consisting of the SHA-1 hash characters after position five,

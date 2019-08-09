@@ -3,12 +3,18 @@ import time
 import pytest
 
 import pyhibp
+from pyhibp import __version__
 
 
 @pytest.fixture(autouse=True)
 def dev_user_agent(monkeypatch):
-    ua_string = pyhibp.pyHIBP_USERAGENT
-    monkeypatch.setattr(pyhibp, 'pyHIBP_USERAGENT', ua_string + " (Testing Suite)")
+    """
+    All calls to the HIBP/PwnedPasswords endpoints require a user agent to be set. So set one on all tests.
+    """
+    ua_string = "pyHIBP/{version} (A Python interface to the public HIBP API; Testing suite)".format(
+        version=__version__.__version__,
+    )
+    pyhibp.set_user_agent(ua=ua_string)
 
 
 @pytest.fixture(name="sleep")

@@ -1,18 +1,78 @@
 import requests
 
-from pyhibp import __version__
 
-HIBP_API_BASE_URI = "https://haveibeenpwned.com/api/v2/"
+HIBP_API_BASE_URI = "https://haveibeenpwned.com/api/v3/"
 HIBP_API_ENDPOINT_BREACH_SINGLE = "breach/"
 HIBP_API_ENDPOINT_BREACHES = "breaches"
 HIBP_API_ENDPOINT_BREACHED_ACCT = "breachedaccount/"
 HIBP_API_ENDPOINT_DATA_CLASSES = "dataclasses"
 HIBP_API_ENDPOINT_PASTES = "pasteaccount/"
 
-# The HIBP API requires that a useragent be set.
-pyHIBP_USERAGENT = "pyHIBP/{0} (A Python interface to the public HIBP API)".format(__version__.__version__)
+
 # The headers we send along with each request
-pyHIBP_HEADERS = {'User-Agent': pyHIBP_USERAGENT}
+pyHIBP_HEADERS = {
+    'User-Agent': None,
+    'hibp-api-key': None
+}
+
+
+def _require_user_agent(function):
+    """
+    A decorator which enforces setting the User-Agent on each request. As per the HIBP API, the UA must be set, or a
+    HTTP 403 response wil; be raised.
+
+    :raises: RuntimeError if the application User-Agent is not set via ``set_user_agent()`` prior to invoking functions
+    which communicate with the HIBP or PwnedPasswords APIs.
+    """
+    def inner(*args, **kwargs):
+        if pyHIBP_HEADERS.get("User-Agent") is None:
+            raise RuntimeError("The User-Agent must be set. Call pyhibp.set_user_agent() first.")
+        return function(*args, **kwargs)
+    return inner
+
+
+def set_user_agent(ua: str = None):
+    """
+    Sets the User-Agent to be used in subsequent calls sent to the HIBP API backend. The UA set should be the name of the
+    application implementing the pyhibp module, and accurately describe the nature of the API consumer.
+
+    See: https://haveibeenpwned.com/API/v3#UserAgent
+
+    The HIBP API enforces setting a User-Agent, otherwise an HTTP 403 will be returned.
+
+    :param ua: A string representing the application name which is implementing the pyhibp module which is sent with
+    each request to the HIBP API.
+    """
+    pyHIBP_HEADERS['User-Agent'] = ua
+
+
+def _require_api_key(function):
+    """
+    A decorator which enforces setting an API key on functions which require one to be set. Not setting an API key would
+    result in an HTTP 401 Unauthorised.
+
+    :raises: RuntimeError if the API key for enabling searching the HIBP API backend by account (email) is not set prior
+    to calling functions which invoke said capability.
+    """
+    def inner(*args, **kwargs):
+        if pyHIBP_HEADERS.get('hibp-api-key') is None:
+            raise RuntimeError("A HIBP API key is required for this call. Call pyhibp.set_api_key(key=your_key) first.")
+        return function(*args, **kwargs)
+    return inner
+
+
+def set_api_key(key: str = None):
+    """
+    Set an API key for use in all future calls to the pyhibp module which search the HIBP database by email address.
+
+    Per the HIBP API documentation: "Authorisation is required for all APIs that enable searching HIBP by email address,
+    namely retrieving all breaches for an account and retrieving all pastes for an account."
+
+    A key can be purchased from <https://haveibeenpwned.com/API/Key>.
+
+    :param key: The key to set for each subsequent request where it is required.
+    """
+    pyHIBP_HEADERS['hibp-api-key'] = key
 
 
 def _process_response(response) -> bool:
@@ -34,6 +94,11 @@ def _process_response(response) -> bool:
         # Bad request - The account does not comply with an acceptable format (i.e., it's an empty string)
         raise RuntimeError(
             "HTTP 400 - Bad request - The account does not comply with an acceptable format (i.e., it's an empty string).")
+    elif response.status_code == 401:
+        # Unauthorised - the API key provided was not valid
+        raise RuntimeError(
+            "HTTP 401 - Unauthorised - The API key provided was not valid."
+        )
     elif response.status_code == 403:
         # Forbidden - no user agent has been specified in the request
         raise RuntimeError("HTTP 403 - User agent required for HIBP API requests, but no user agent was sent to the API endpoint.")
@@ -47,13 +112,17 @@ def _process_response(response) -> bool:
         raise NotImplementedError("Returned HTTP status code of {0} was not expected.".format(response.status_code))
 
 
+@_require_api_key
+@_require_user_agent
 def get_account_breaches(account: str = None, domain: str = None, truncate_response: bool = False, include_unverified: bool = False) -> list:
     """
     Gets breaches for a specified account from the HIBP system, optionally restricting the returned results
     to a specified domain.
 
-    :param account: The user's account name (such as an email address or a user-name). Default None. `str` type.
-    :param domain: The domain to check for breaches. Default None. `str` type.
+    This function requires a HIBP API key to be set. See ``set_api_key()``.
+
+    :param account: The user's account name (such as an email address or a user-name). Default None. `str` type. Required.
+    :param domain: The domain to check for breaches. Default None. `str` type. Optional
     :param truncate_response: If ``account`` is specified, truncates the response down to the breach names.
     Default False. `bool` type.
     :param include_unverified: If set to True, unverified breaches are included in the result. Default False. `bool` type
@@ -62,9 +131,9 @@ def get_account_breaches(account: str = None, domain: str = None, truncate_respo
     the HIBP API.
     :rtype: list
     """
-    # Account/Domain don't need to be specified, but they must be text if so.
     if account is None or not isinstance(account, str):
         raise AttributeError("The account parameter must be specified, and must be a string.")
+    # The domain does not need to specified, but is must be text, if so.
     if domain is not None and not isinstance(domain, str):
         raise AttributeError("The domain parameter, if specified, must be a string.")
 
@@ -85,6 +154,7 @@ def get_account_breaches(account: str = None, domain: str = None, truncate_respo
         return []
 
 
+@_require_user_agent
 def get_all_breaches(domain: str = None) -> list:
     """
     Returns a listing of all sites breached in the HIBP database.
@@ -108,6 +178,7 @@ def get_all_breaches(domain: str = None) -> list:
         return []
 
 
+@_require_user_agent
 def get_single_breach(breach_name: str = None) -> dict:
     """
     Returns a single breach's information from the HIBP's database.
@@ -129,9 +200,13 @@ def get_single_breach(breach_name: str = None) -> dict:
         return {}
 
 
+@_require_api_key
+@_require_user_agent
 def get_pastes(email_address: str = None) -> list:
     """
     Retrieve all pastes for a specified email address.
+
+    This function requires a HIBP API key to be set. See ``set_api_key()``.
 
     :param email_address: The email address to search. Required. `str` type.
     :return: A list object containing one or more dict objects corresponding to the pastes the specified email
@@ -150,6 +225,7 @@ def get_pastes(email_address: str = None) -> list:
         return []
 
 
+@_require_user_agent
 def get_data_classes() -> list:
     """
     Retrieves all available data classes from the HIBP API.
