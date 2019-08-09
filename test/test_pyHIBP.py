@@ -1,5 +1,3 @@
-import uuid
-
 import pytest
 
 import pyhibp
@@ -81,44 +79,39 @@ class TestGetAccountBreaches(object):
         assert not resp
         assert isinstance(resp, list)
 
+    @pytest.mark.usefixtures('use_fake_api_key')
     def test_get_breaches_raise_if_account_is_not_specified(self):
-        # Set a fake API key (since this is an error path)
-        pyhibp.set_api_key(key="NotARealKey")
-
         # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the account must be a string
             pyhibp.get_account_breaches(account=None)
         assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
-        # Unset the fake key
-        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
-
+    @pytest.mark.usefixtures('use_fake_api_key')
     def test_get_breaches_raise_if_account_is_not_string(self):
-        # Set a fake API key (since this is an error path)
-        pyhibp.set_api_key(key="NotARealKey")
-
         # get_account_breaches(account=1, domain=None, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the account must be a string
             pyhibp.get_account_breaches(account=1)
         assert "The account parameter must be specified, and must be a string" in str(excinfo.value)
 
-        # Unset the fake key
-        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
-
+    @pytest.mark.usefixtures('use_fake_api_key')
     def test_get_breaches_raise_if_domain_is_not_string(self):
-        # Set a fake API key (since this is an error path)
-        pyhibp.set_api_key(key="NotARealKey")
-
         # get_account_breaches(account=TEST_ACCOUNT, domain=1, truncate_response=False, include_unverified=False):
         with pytest.raises(AttributeError) as excinfo:
             # Will raise because the domain must be a string
             pyhibp.get_account_breaches(account=TEST_ACCOUNT, domain=1)
         assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
 
-        # Unset the fake key
-        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
+    @pytest.mark.usefixtures('use_fake_api_key')
+    def test_user_agent_must_be_set_or_raise(self, monkeypatch):
+        """
+        The HIBP backend requires a User-Agent; ensure we're forcing one to be set on all functions
+        """
+        monkeypatch.setitem(pyhibp.pyHIBP_HEADERS, 'User-Agent', None)
+        with pytest.raises(RuntimeError) as execinfo:
+            pyhibp.get_account_breaches(account=TEST_ACCOUNT)
+        assert "The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first." in str(execinfo.value)
 
 
 class TestGetAllBreaches(object):
@@ -153,6 +146,15 @@ class TestGetAllBreaches(object):
             pyhibp.get_all_breaches(domain=1)
         assert "The domain parameter, if specified, must be a string" in str(excinfo.value)
 
+    def test_user_agent_must_be_set_or_raise(self, monkeypatch):
+        """
+        The HIBP backend requires a User-Agent; ensure we're forcing one to be set on all functions
+        """
+        monkeypatch.setitem(pyhibp.pyHIBP_HEADERS, 'User-Agent', None)
+        with pytest.raises(RuntimeError) as execinfo:
+            pyhibp.get_all_breaches()
+        assert "The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first." in str(execinfo.value)
+
 
 class TestGetSingleBreach(object):
     @pytest.mark.usefixtures('sleep')
@@ -183,6 +185,15 @@ class TestGetSingleBreach(object):
             pyhibp.get_single_breach(breach_name=1)
         assert "The breach_name must be specified, and be a string" in str(excinfo.value)
 
+    def test_user_agent_must_be_set_or_raise(self, monkeypatch):
+        """
+        The HIBP backend requires a User-Agent; ensure we're forcing one to be set on all functions
+        """
+        monkeypatch.setitem(pyhibp.pyHIBP_HEADERS, 'User-Agent', None)
+        with pytest.raises(RuntimeError) as execinfo:
+            pyhibp.get_single_breach(breach_name=TEST_DOMAIN_NAME)
+        assert "The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first." in str(execinfo.value)
+
 
 class TestGetPastes(object):
     @pytest.mark.usefixtures('sleep')
@@ -212,32 +223,41 @@ class TestGetPastes(object):
         assert not resp
         assert isinstance(resp, list)
 
+    @pytest.mark.usefixtures('use_fake_api_key')
     def test_get_pastes_raise_if_email_not_specified(self):
-        # Set a fake API key (since this is an error path)
-        pyhibp.set_api_key(key="NotARealKey")
-
         # get_pastes():
         with pytest.raises(AttributeError) as excinfo:
             pyhibp.get_pastes()
         assert "The email address supplied must be provided, and be a string" in str(excinfo.value)
 
-        # Unset the fake key
-        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
-
+    @pytest.mark.usefixtures('use_fake_api_key')
     def test_get_pastes_raise_if_email_not_string(self):
-        # Set a fake API key (since this is an error path)
-        pyhibp.set_api_key(key="NotARealKey")
-
         # get_pastes(email_address=1):
         with pytest.raises(AttributeError) as excinfo:
             pyhibp.get_pastes(email_address=1)
         assert "The email address supplied must be provided, and be a string" in str(excinfo.value)
 
-        # Unset the fake key
-        pyhibp.pyHIBP_HEADERS['hibp-api-key'] = None
+    @pytest.mark.usefixtures('use_fake_api_key')
+    def test_user_agent_must_be_set_or_raise(self, monkeypatch):
+        """
+        The HIBP backend requires a User-Agent; ensure we're forcing one to be set on all functions
+        """
+        monkeypatch.setitem(pyhibp.pyHIBP_HEADERS, 'User-Agent', None)
+        with pytest.raises(RuntimeError) as execinfo:
+            pyhibp.get_pastes(email_address=TEST_ACCOUNT)
+        assert "The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first." in str(execinfo.value)
 
 
 class TestGetDataClasses(object):
+    def test_user_agent_must_be_set_or_raise(self, monkeypatch):
+        """
+        The HIBP backend requires a User-Agent; ensure we're forcing one to be set on all functions
+        """
+        monkeypatch.setitem(pyhibp.pyHIBP_HEADERS, 'User-Agent', None)
+        with pytest.raises(RuntimeError) as execinfo:
+            pyhibp.get_data_classes()
+        assert "The User-Agent must be set. Call pyhibp.set_user_agent(ua=your_agent_string) first." in str(execinfo.value)
+
     @pytest.mark.usefixtures('sleep')
     def test_get_data_classes(self):
         # get_data_classes():
@@ -248,18 +268,6 @@ class TestGetDataClasses(object):
 
 
 class TestMiscellaneous(object):
-    @pytest.mark.xfail(reason="The rate limit exists in the API docs, but responses are cached, and even attempting to manually (via browser) hit the limit isn't happening.")
-    @pytest.mark.usefixtures('sleep')
-    def test_raise_if_rate_limit_exceeded(self):
-        """ The API will respond the same to all exceeded rate limits across all endpoints """
-        # The rate limit exists, however all responses are cached; so we need to generate some random "accounts".
-        rand_accts = ["{0}@test-suite.pyhibp.example.com".format(str(uuid.uuid4())) for j in range(4)]
-
-        with pytest.raises(RuntimeError) as excinfo:
-            for item in rand_accts:
-                pyhibp.get_account_breaches(account=item, truncate_response=True)
-        assert "HTTP 429" in str(excinfo.value)
-
     @pytest.mark.skip("Unable to test due to lack of purchased API key")
     @pytest.mark.usefixtures('sleep')
     def test_raise_if_invalid_format_submitted(self):
