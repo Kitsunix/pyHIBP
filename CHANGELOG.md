@@ -1,6 +1,6 @@
 pyHIBP Changelog
 ================
-v4.0.0.dev (In progress...)
+v4.0.0 (2019-08-11)
 ------------------------
 - **Breaking API change**: The HIBP API now requires an API key for calls which search by account. This means calls to
   ``pyhibp.get_account_breaches()`` and ``pyhibp.get_pastes()``. API keys can be obtained [the HIBP website](https://haveibeenpwned.com/API/Key),

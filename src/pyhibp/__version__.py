@@ -4,5 +4,5 @@
 # |)\/| |||)|
 # | /
 
-__version__ = '4.0.0.dev0'
+__version__ = '4.0.0'
 __url__ = 'https://gitlab.com/kitsunix/pyHIBP/pyHIBP'
