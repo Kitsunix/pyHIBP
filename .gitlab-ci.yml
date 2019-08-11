@@ -19,24 +19,6 @@ variables:
       junit: .pytest-junit.xml
     expire_in: 4 weeks
 
-python27:
-  <<: *junit_test_results
-  stage: test
-  image: python:2.7-alpine
-  cache:
-    key: "python2"
-    paths:
-      - .cache/
-  script:
-    # Build out the docker image with what we need to get the tests rolling
-    - apk add --update libffi-dev python2 python2-dev make g++ git
-    - python2 -V
-    - wget -O - https://bootstrap.pypa.io/get-pip.py | python2
-    - pip install pipenv
-    # Start the test stuff.
-    - export TOXENV=py27
-    - make tox
-
 python35:
   <<: *junit_test_results
   stage: test
@@ -55,7 +37,7 @@ python35:
     - export TOXENV=py35
     - make tox
 
-.python36:
+python36:
   <<: *junit_test_results
   stage: test
   image: python:3.6-alpine
@@ -73,7 +55,7 @@ python35:
     - export TOXENV=py36
     - make tox
 
-.python37:
+python37:
   <<: *junit_test_results
   stage: test
   image: python:3.7-alpine
@@ -91,30 +73,16 @@ python35:
     - export TOXENV=py37
     - make tox
 
-code_quality:
-  stage: post-test
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-  allow_failure: true
-  services:
-    - docker:stable-dind
-  script:
-    - export SP_VERSION=$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')
-    - docker run
-        --env SOURCE_CODE="$PWD"
-        --volume "$PWD":/code
-        --volume /var/run/docker.sock:/var/run/docker.sock
-        "registry.gitlab.com/gitlab-org/security-products/codequality:$SP_VERSION" /code
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
-    expire_in: 4 weeks
-
 include:
-  template: SAST.gitlab-ci.yml
+  - template: SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
 
 sast:
   stage: post-test
   artifacts:
-    expire_in: 4 weeks
+    expire_in: 2 weeks
+
+code_quality:
+  stage: post-test
+  artifacts:
+    expire_in: 2 weeks

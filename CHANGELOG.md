@@ -1,5 +1,32 @@
 pyHIBP Changelog
 ================
+v4.0.0 (2019-08-11)
+------------------------
+- **Breaking API change**: The HIBP API now requires an API key for calls which search by account. This means calls to
+  ``pyhibp.get_account_breaches()`` and ``pyhibp.get_pastes()``. API keys can be obtained [the HIBP website](https://haveibeenpwned.com/API/Key),
+  and must be loaded into the module by calling ``pyhibp.set_api_key(key="your_key")`` prior to calling the affected
+  functions.
+- The other functions inside ``pyhibp``, as well as ``pwnedpasswords``, do not require an API key to use.
+- As a note, our testing harness has not been tested against valid API keys, however we anticipate no issues. If issues
+  are discovered, please raise an issue with details, ideally with a merge request to fix the issue.
+- **A User Agent must now be manually set**: As per the HIBP API, the User-Agent header set in calls to the API must
+  reflect the name of the calling application. Directly from the API documentation, "the user agent should accurately
+  describe the nature of the API consumer such that it can be clearly identified in the request. Not doing so may result
+  in the request being blocked." As such, users of this module must now set the User-Agent by calling
+  ``pyhibp.set_user_agent(ua=ua_string)``, where ``ua_string`` is a string which identifies the application implementing
+  the ``pyhibp`` module.
+- **Python 2.7 Support Dropped**: With Python 2.7 support being dropped in January 2020, as stated in the notes for v3.0.0
+  and v3.1.0, ``pyhibp`` is dropping support for Python 2.7.
+- **Function modified**: ``suffix_search(hash_prefix=prefix)`` is now the method to search for hash suffixes. The compatability
+  shim left when introducing the function in v3.1.0 has been removed (and thus ``first_5_hash_chars`` is no longer a valid
+  parameter to the function ``is_password_breached()``).
+- **Return type changes**: As per the changelog from v3.1.0, the return type for empty sets has changed as follows for the
+  following functions in the ``pyhibp`` module:
+    - ``get_account_breaches`` -> ``[] / list``
+    - ``get_all_breaches`` -> ``[] / list``
+    - ``get_single_breach`` -> ``{} / dict``
+    - ``get_pastes`` -> ``[] / list``
+
 v3.1.0 (2019-06-30)
 -----------------------
 - **New function**: ``pwnedpasswords.suffix_search(hash_prefix=prefix)`` was created in order to have a dedicated function

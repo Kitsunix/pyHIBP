@@ -7,6 +7,9 @@ __pycache__/
 .idea
 .vscode
 
+# Development specific (tracking if pipenv made via Makefile)
+.pipenv-made
+
 # Pipenv lock file
 Pipfile.lock
 

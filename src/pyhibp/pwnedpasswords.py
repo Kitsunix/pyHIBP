@@ -1,10 +1,9 @@
 import hashlib
-import warnings
 
 import requests
-import six
 
 import pyhibp
+from pyhibp import _require_user_agent
 
 PWNED_PASSWORDS_API_BASE_URI = "https://api.pwnedpasswords.com/"
 PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
@@ -12,7 +11,7 @@ PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
 RESPONSE_ENCODING = "utf-8-sig"
 
 
-def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None):
+def is_password_breached(password: str = None, sha1_hash: str = None) -> int:
     """
     Execute a search for a password via the k-anonymity model, checking for hashes which match a specified
     prefix instead of supplying the full hash to the Pwned Passwords API.
@@ -39,46 +38,34 @@ def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None)
     :rtype: int
     """
     # Parameter validation section
-    if not any([password, first_5_hash_chars, sha1_hash]):
-        raise AttributeError("One of password, sha1_hash, or first_5_hash_chars must be provided.")
-    elif password is not None and not isinstance(password, six.string_types):
-        raise AttributeError("password must be a string type.")
-    elif sha1_hash is not None and not isinstance(sha1_hash, six.string_types):
-        raise AttributeError("sha1_hash must be a string type.")
-    elif first_5_hash_chars is not None and not isinstance(first_5_hash_chars, six.string_types):
-        raise AttributeError("first_5_hash_chars must be a string type.")
-    if first_5_hash_chars and len(first_5_hash_chars) != 5:
-        raise AttributeError("first_5_hash_chars must be of length 5.")
+    if not any([password, sha1_hash]):
+        raise AttributeError("Either password or sha1_hash must be provided.")
+    elif password is not None and not isinstance(password, str):
+        raise AttributeError("password must be a string.")
+    elif sha1_hash is not None and not isinstance(sha1_hash, str):
+        raise AttributeError("sha1_hash must be a string.")
 
     if password:
         sha1_hash = hashlib.sha1(password.encode('utf-8')).hexdigest()
     if sha1_hash:
         # The HIBP API stores the SHA-1 hashes in uppercase, so ensure we have it as uppercase here
         sha1_hash = sha1_hash.upper()
-        first_5_hash_chars = sha1_hash[0:5]
+        hash_prefix = sha1_hash[0:5]
 
-    suffix_list = suffix_search(hash_prefix=first_5_hash_chars)
+    suffix_list = suffix_search(hash_prefix=hash_prefix)
 
-    if not sha1_hash:
-        # TODO: v4.0.0: Remove this codepath (first_5_hash_chars)
-        warnings.warn("""
-            Hash suffix searching is being moved to its own discrete function, `suffix_search()`. Call `suffix_search(hash_prefix=prefix)`
-            instead. Hash prefixes will not return from is_password_breached() in a future release.
-        """)
-        # Return the list of hash suffixes.
-        return suffix_list
-    else:
-        # Since the full SHA-1 hash was provided, check to see if it was in the resultant hash suffixes returned.
-        for hash_suffix in suffix_list:
-            if sha1_hash[5:] in hash_suffix:
-                # We found the full hash, so return
-                return int(hash_suffix.split(':')[1])
+    # Since the full SHA-1 hash was provided, check to see if it was in the resultant hash suffixes returned.
+    for hash_suffix in suffix_list:
+        if sha1_hash[5:] in hash_suffix:
+            # We found the full hash, so return
+            return int(hash_suffix.split(':')[1])
 
-        # If we get here, there was no match to the supplied SHA-1 hash; return zero.
-        return 0
+    # If we get here, there was no match to the supplied SHA-1 hash; return zero.
+    return 0
 
 
-def suffix_search(hash_prefix=None):
+@_require_user_agent
+def suffix_search(hash_prefix: str = None) -> list:
     """
     Returns a list of SHA-1 hash suffixes, consisting of the SHA-1 hash characters after position five,
     and the number of times that password hash was found in the HIBP database, colon separated.
@@ -105,8 +92,8 @@ def suffix_search(hash_prefix=None):
     :return: A list of hash suffixes.
     :rtype: list
     """
-    if not hash_prefix or not isinstance(hash_prefix, six.string_types):
-        raise AttributeError("hash_prefix must be a supplied, and be a string-type.")
+    if not hash_prefix or not isinstance(hash_prefix, str):
+        raise AttributeError("hash_prefix must be a supplied, and be a string.")
     if hash_prefix and len(hash_prefix) != 5:
         raise AttributeError("hash_prefix must be of length 5.")
 
