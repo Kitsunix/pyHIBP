@@ -6,7 +6,7 @@ pyHIBP (pyHave I Been Pwned)
 
 
 A Python interface to Troy Hunt's 'Have I Been Pwned?' (HIBP) public API. A full reference to the API
-specification can be found at the [HIBP API Reference](https://haveibeenpwned.com/API/v2).
+specification can be found at the [HIBP API Reference](https://haveibeenpwned.com/API/v3).
 
 This module detects when the rate limit of the API has been hit, and raises a RuntimeError when the limit
 is exceeded, or when another API-defined error condition is encountered based on the submitted data. When
