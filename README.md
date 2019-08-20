@@ -68,7 +68,8 @@ if HIBP_API_KEY:
 
 Developing
 ----------
-This project is currently intended to be compatible with Python 2 and Python 3. As such, we use virtual environments via `pipenv`.
+In order to ensure we have a consistent and repeatable development environment
+we use a virtual environment, namely `pipenv`.
 To develop or test, execute the following:
 
 ```bash
