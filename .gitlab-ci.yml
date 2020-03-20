@@ -8,6 +8,7 @@ before_script:
 after_script:
   - date
 
+
 # For package caching
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
@@ -19,10 +20,10 @@ variables:
       junit: .pytest-junit.xml
     expire_in: 4 weeks
 
-python35:
-  <<: *junit_test_results
+
+# Create the core definition of the test; TOXENV and image defined in each main job.
+.core_test_definition: &core_test_definition
   stage: test
-  image: python:3.5-alpine
   cache:
     key: "python3"
     paths:
@@ -34,45 +35,35 @@ python35:
     - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
     - pip install pipenv
     # Start the test stuff.
-    - export TOXENV=py35
     - make tox
+
+
+python35:
+  <<: *core_test_definition
+  image: python:3.5-alpine
+  variables:
+    TOXENV: "py35"
 
 python36:
-  <<: *junit_test_results
-  stage: test
+  <<: *core_test_definition
   image: python:3.6-alpine
-  cache:
-    key: "python3"
-    paths:
-      - .cache/
-  script:
-    # Build out the docker image with what we need to get the tests rolling
-    - apk add --update libffi-dev python3 python3-dev make g++ git
-    - python3 -V
-    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
-    - pip install pipenv
-    # Start the test stuff.
-    - export TOXENV=py36
-    - make tox
+  variables:
+    TOXENV: "py36"
 
 python37:
-  <<: *junit_test_results
-  stage: test
+  <<: *core_test_definition
   image: python:3.7-alpine
-  cache:
-    key: "python3"
-    paths:
-      - .cache/
-  script:
-    # Build out the docker image with what we need to get the tests rolling
-    - apk add --update libffi-dev python3 python3-dev make g++ git
-    - python3 -V
-    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
-    - pip install pipenv
-    # Start the test stuff.
-    - export TOXENV=py37
-    - make tox
+  variables:
+    TOXENV: "py37"
 
+python38:
+  <<: *core_test_definition
+  image: python:3.8-alpine
+  variables:
+    TOXENV: "py38"
+
+
+# SAST/Code Quality -- GitLab templates, with overrides for artifacts
 include:
   - template: SAST.gitlab-ci.yml
   - template: Code-Quality.gitlab-ci.yml
