@@ -1,12 +1,24 @@
 stages:
   - test
   - post-test
+  - deploy-testpypi
+  - deploy-pypi
 
-before_script:
-  - date
 
-after_script:
-  - date
+# Set defaults
+default:
+  interruptible: true
+  before_script:
+    - date
+  after_script:
+    - date
+    - python -V
+
+.common_cache: &common_cache
+  cache:
+    key: "python3"
+    paths:
+      - .cache/
 
 
 # For package caching
@@ -23,15 +35,12 @@ variables:
 
 # Create the core definition of the test; TOXENV and image defined in each main job.
 .core_test_definition: &core_test_definition
+  <<: *common_cache
+  <<: *junit_test_results
   stage: test
-  cache:
-    key: "python3"
-    paths:
-      - .cache/
   script:
     # Build out the docker image with what we need to get the tests rolling
     - apk add --update libffi-dev python3 python3-dev make g++ git
-    - python3 -V
     - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
     - pip install pipenv
     # Start the test stuff.
@@ -61,6 +70,38 @@ python38:
   image: python:3.8-alpine
   variables:
     TOXENV: "py38"
+
+
+# Deploy phases
+.deploy_common: &deploy_common
+  <<: *common_cache
+  when: manual
+  interruptible: false
+  image: python:3.8-alpine
+  script:
+    - apk add --update libffi-dev python3 python3-dev make g++ git openssl-dev
+    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
+    - pip install twine pipenv
+    - make create-pipenv
+    - make build
+    - twine upload --skip-existing --disable-progress-bar ./dist/*
+  environment:
+    name: pypi-pyhibp-deployment
+    url: https://example.com
+
+testpypi-deploy:
+  <<: *deploy_common
+  stage: deploy-testpypi
+  variables:
+    TWINE_PASSWORD: $TWINE_PASSWORD_PYPITEST_PYHIBP
+    TWINE_REPOSITORY_URL: $TWINE_REPOSITORY_URL_PYPITEST
+
+pypi-deploy:
+  <<: *deploy_common
+  stage: deploy-pypi
+  variables:
+    TWINE_PASSWORD: $TWINE_PASSWORD_PYPI_PYHIBP
+    TWINE_REPOSITORY_URL: $TWINE_REPOSITORY_URL_PYPI
 
 
 # SAST/Code Quality -- GitLab templates, with overrides for artifacts
