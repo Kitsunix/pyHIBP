@@ -1,12 +1,25 @@
 stages:
   - test
   - post-test
+  - deploy-testpypi
+  - deploy-pypi
 
-before_script:
-  - date
 
-after_script:
-  - date
+# Set defaults
+default:
+  interruptible: true
+  before_script:
+    - date
+  after_script:
+    - date
+    - python -V
+
+.common_cache: &common_cache
+  cache:
+    key: "python3"
+    paths:
+      - .cache/
+
 
 # For package caching
 variables:
@@ -19,60 +32,79 @@ variables:
       junit: .pytest-junit.xml
     expire_in: 4 weeks
 
-python35:
+
+# Create the core definition of the test; TOXENV and image defined in each main job.
+.core_test_definition: &core_test_definition
+  <<: *common_cache
   <<: *junit_test_results
   stage: test
-  image: python:3.5-alpine
-  cache:
-    key: "python3"
-    paths:
-      - .cache/
   script:
     # Build out the docker image with what we need to get the tests rolling
     - apk add --update libffi-dev python3 python3-dev make g++ git
-    - python3 -V
     - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
     - pip install pipenv
     # Start the test stuff.
-    - export TOXENV=py35
     - make tox
+
+
+python35:
+  <<: *core_test_definition
+  image: python:3.5-alpine
+  variables:
+    TOXENV: "py35"
 
 python36:
-  <<: *junit_test_results
-  stage: test
+  <<: *core_test_definition
   image: python:3.6-alpine
-  cache:
-    key: "python3"
-    paths:
-      - .cache/
-  script:
-    # Build out the docker image with what we need to get the tests rolling
-    - apk add --update libffi-dev python3 python3-dev make g++ git
-    - python3 -V
-    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
-    - pip install pipenv
-    # Start the test stuff.
-    - export TOXENV=py36
-    - make tox
+  variables:
+    TOXENV: "py36"
 
 python37:
-  <<: *junit_test_results
-  stage: test
+  <<: *core_test_definition
   image: python:3.7-alpine
-  cache:
-    key: "python3"
-    paths:
-      - .cache/
-  script:
-    # Build out the docker image with what we need to get the tests rolling
-    - apk add --update libffi-dev python3 python3-dev make g++ git
-    - python3 -V
-    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
-    - pip install pipenv
-    # Start the test stuff.
-    - export TOXENV=py37
-    - make tox
+  variables:
+    TOXENV: "py37"
 
+python38:
+  <<: *core_test_definition
+  image: python:3.8-alpine
+  variables:
+    TOXENV: "py38"
+
+
+# Deploy phases
+.deploy_common: &deploy_common
+  <<: *common_cache
+  when: manual
+  interruptible: false
+  image: python:3.8-alpine
+  script:
+    - apk add --update libffi-dev python3 python3-dev make g++ git openssl-dev
+    - wget -O - https://bootstrap.pypa.io/get-pip.py | python3
+    - pip install twine pipenv
+    - make create-pipenv
+    - make build
+    - twine upload --skip-existing --disable-progress-bar ./dist/*
+  environment:
+    name: pypi-pyhibp-deployment
+    url: https://example.com
+
+testpypi-deploy:
+  <<: *deploy_common
+  stage: deploy-testpypi
+  variables:
+    TWINE_PASSWORD: $TWINE_PASSWORD_PYPITEST_PYHIBP
+    TWINE_REPOSITORY_URL: $TWINE_REPOSITORY_URL_PYPITEST
+
+pypi-deploy:
+  <<: *deploy_common
+  stage: deploy-pypi
+  variables:
+    TWINE_PASSWORD: $TWINE_PASSWORD_PYPI_PYHIBP
+    TWINE_REPOSITORY_URL: $TWINE_REPOSITORY_URL_PYPI
+
+
+# SAST/Code Quality -- GitLab templates, with overrides for artifacts
 include:
   - template: SAST.gitlab-ci.yml
   - template: Code-Quality.gitlab-ci.yml
