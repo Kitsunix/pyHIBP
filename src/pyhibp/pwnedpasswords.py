@@ -2,8 +2,7 @@ import hashlib
 
 import requests
 
-import pyhibp
-from pyhibp import _require_user_agent
+from pyhibp import _require_user_agent, pyHIBP_HEADERS
 
 PWNED_PASSWORDS_API_BASE_URI = "https://api.pwnedpasswords.com/"
 PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
@@ -11,7 +10,7 @@ PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
 RESPONSE_ENCODING = "utf-8-sig"
 
 
-def is_password_breached(password: str = None, sha1_hash: str = None) -> int:
+def is_password_breached(password: str = None, sha1_hash: str = None, add_padding: bool = False) -> int:
     """
     Execute a search for a password via the k-anonymity model, checking for hashes which match a specified
     prefix instead of supplying the full hash to the Pwned Passwords API.
@@ -27,12 +26,10 @@ def is_password_breached(password: str = None, sha1_hash: str = None) -> int:
     2) sha1_hash - The hash prefix (hash[0:5]) is passed to the HIBP API, and this function will check the returned list of
     hash suffixes to determine if a breached password was in the HIBP database.
 
-    Note: Suffix searches, that is, to retrieve a list of hash suffixes by supplying a hash prefix, have moved to
-    `suffix_search()` as of this release (v3.1.0). A compatability shim has been left for this release, but will be removed on the
-    next major version release.
-
     :param password: The password to check. Will be converted to a SHA-1 string. `str` type.
     :param sha1_hash: A full SHA-1 hash. `str` type.
+    :param add_padding: Whether padding should be used when performing the check (obfuscates response size, does not
+    alter return type/value.
     :return: An Integer representing the number of times the password is in the data set; if not found,
     Integer zero (0) is returned.
     :rtype: int
@@ -52,7 +49,7 @@ def is_password_breached(password: str = None, sha1_hash: str = None) -> int:
         sha1_hash = sha1_hash.upper()
         hash_prefix = sha1_hash[0:5]
 
-    suffix_list = suffix_search(hash_prefix=hash_prefix)
+    suffix_list = suffix_search(hash_prefix=hash_prefix, add_padding=add_padding)
 
     # Since the full SHA-1 hash was provided, check to see if it was in the resultant hash suffixes returned.
     for hash_suffix in suffix_list:
@@ -65,7 +62,7 @@ def is_password_breached(password: str = None, sha1_hash: str = None) -> int:
 
 
 @_require_user_agent
-def suffix_search(hash_prefix: str = None) -> list:
+def suffix_search(hash_prefix: str = None, add_padding: bool = False) -> list:
     """
     Returns a list of SHA-1 hash suffixes, consisting of the SHA-1 hash characters after position five,
     and the number of times that password hash was found in the HIBP database, colon separated.
@@ -88,6 +85,9 @@ def suffix_search(hash_prefix: str = None) -> list:
     If the `prefix` and `suffix` form a complete SHA-1 hash for the password being compared, then it
     indicates the password has been found in the HIBP database.
 
+    :param add_padding: Boolean. Adds padding to the response to include hash suffixes which have not been breached, in
+    order to prevent sniffing of response size to infer what hash prefix was searched. Entries which end in zero can be
+    disregarded.
     :param hash_prefix: The first five characters of a SHA-1 hash. `str` type.
     :return: A list of hash suffixes.
     :rtype: list
@@ -99,7 +99,10 @@ def suffix_search(hash_prefix: str = None) -> list:
 
     uri = PWNED_PASSWORDS_API_BASE_URI + PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH + hash_prefix
 
-    resp = requests.get(url=uri, headers=pyhibp.pyHIBP_HEADERS)
+    _headers = pyHIBP_HEADERS
+    _headers['Add-Padding'] = "true" if add_padding else None
+
+    resp = requests.get(url=uri, headers=_headers)
     if resp.status_code != 200:
         # The HTTP Status should always be 200 for this request
         raise RuntimeError("Response from the endpoint was not HTTP200; this should not happen. Code was: {0}".format(resp.status_code))

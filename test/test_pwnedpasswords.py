@@ -79,19 +79,26 @@ class TestSuffixSearch(object):
         assert "hash_prefix must be of length 5." in str(execinfo.value)
 
     @pytest.mark.usefixtures('sleep')
-    def test_list_of_hashes_returned(self):
+    @pytest.mark.parametrize("add_padding", [True, False])
+    def test_list_of_hashes_returned(self, add_padding):
         """
         Test all parameters: The response format for all parameters is the same.
         """
-        resp = pw.suffix_search(hash_prefix=TEST_PASSWORD_SHA1_HASH[0:5])
+        resp = pw.suffix_search(hash_prefix=TEST_PASSWORD_SHA1_HASH[0:5], add_padding=add_padding)
 
         assert isinstance(resp, list)
         assert len(resp) > 100
         match_found = False
         for entry in resp:
-            if TEST_PASSWORD_SHA1_HASH[5:] in entry.lower():
-                match_found = True
-                break
+            partial_hash, count = entry.split(":")
+            if not add_padding:
+                if TEST_PASSWORD_SHA1_HASH[5:] == partial_hash.lower():
+                    match_found = True
+                    break
+            elif add_padding:
+                if count == "0":
+                    match_found = True
+                    break
         assert match_found
 
     def test_user_agent_must_be_set_or_raise(self, monkeypatch):
