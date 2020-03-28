@@ -4,7 +4,7 @@ import warnings
 import requests
 import six
 
-import pyhibp
+from pyhibp import _require_user_agent, _final_python27_release, pyHIBP_HEADERS
 
 PWNED_PASSWORDS_API_BASE_URI = "https://api.pwnedpasswords.com/"
 PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
@@ -78,6 +78,8 @@ def is_password_breached(password=None, sha1_hash=None, first_5_hash_chars=None)
         return 0
 
 
+@_require_user_agent
+@_final_python27_release
 def suffix_search(hash_prefix=None):
     """
     Returns a list of SHA-1 hash suffixes, consisting of the SHA-1 hash characters after position five,
@@ -112,7 +114,7 @@ def suffix_search(hash_prefix=None):
 
     uri = PWNED_PASSWORDS_API_BASE_URI + PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH + hash_prefix
 
-    resp = requests.get(url=uri, headers=pyhibp.pyHIBP_HEADERS)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
     if resp.status_code != 200:
         # The HTTP Status should always be 200 for this request
         raise RuntimeError("Response from the endpoint was not HTTP200; this should not happen. Code was: {0}".format(resp.status_code))
