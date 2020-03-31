@@ -33,6 +33,18 @@ v4.0.0 (2019-08-11)
     - ``get_single_breach`` -> ``{} / dict``
     - ``get_pastes`` -> ``[] / list``
 
+v3.2.0 (2020-03-28)
+-----------------------
+- **FINAL SUPPORTED PYTHON 2.7 RELEASE**: All following releases will require Python 3. CPython discontinued support as of
+  January 1, 2020, and we dropped support in v4.0.0. (Yes, we dropped support and are releasing a backport; ironic.)
+- **Backported functions (from v4.0.0)**: The following functions are required to consume the API, either in general (user agent), or for querying for specific account information (API key).
+    - `pyhibp.set_user_agent(ua=agent)`: The HIBP API requires the calling application to set a descriptive UA string to
+      describe the application consuming the API. This must be called prior to invoking any functions in
+      `pyhibp` or `pwnedpasswords` which actually make requests to the HIBP API.
+    - `pyhibp.set_api_key(key=your_key)`: For `pyhibp` functions which retrieve information about specific accounts, an
+      API key must be purchased from the HIBP website. This must be set prior to calling the relevant functions.
+- Note: As this is was a backport, this change is not in the main master branch of source control, however the tagged release may [be found here](https://gitlab.com/kitsunix/pyHIBP/pyHIBP/-/tags/v3.2.0).
+
 v3.1.0 (2019-06-30)
 -----------------------
 - **New function**: ``pwnedpasswords.suffix_search(hash_prefix=prefix)`` was created in order to have a dedicated function
