@@ -1,6 +1,6 @@
 pyHIBP Changelog
 ================
-v4.1.0 (In progress...)
+v4.1.0 (2020-04-06)
 ------------------------
 - Adds the capability to request that the Pwned Passwords API return padding to the responses to calls made via
   ``pwnedpasswords``. Set the parameter ``add_padding`` to ``True`` on ``suffix_search`` or ``is_password_breached``.
