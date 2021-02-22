@@ -47,12 +47,6 @@ variables:
     - make tox
 
 
-python35:
-  <<: *core_test_definition
-  image: python:3.5-alpine
-  variables:
-    TOXENV: "py35"
-
 python36:
   <<: *core_test_definition
   image: python:3.6-alpine
@@ -70,6 +64,12 @@ python38:
   image: python:3.8-alpine
   variables:
     TOXENV: "py38"
+
+python39:
+  <<: *core_test_definition
+  image: python:3.9-alpine
+  variables:
+    TOXENV: "py39"
 
 
 # Deploy phases
