@@ -10,7 +10,7 @@ PWNED_PASSWORDS_API_ENDPOINT_RANGE_SEARCH = "range/"
 RESPONSE_ENCODING = "utf-8-sig"
 
 
-def is_password_breached(password: str = None, sha1_hash: str = None, add_padding: bool = False) -> int:
+def is_password_breached(password: str = None, sha1_hash: str = None, add_padding: bool = False, timeout=5.0) -> int:
     """
     Execute a search for a password via the k-anonymity model, checking for hashes which match a specified
     prefix instead of supplying the full hash to the Pwned Passwords API.
@@ -30,6 +30,7 @@ def is_password_breached(password: str = None, sha1_hash: str = None, add_paddin
     :param sha1_hash: A full SHA-1 hash. `str` type.
     :param add_padding: Whether padding should be used when performing the check (obfuscates response size, does not
     alter return type/value.
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     :return: An Integer representing the number of times the password is in the data set; if not found,
     Integer zero (0) is returned.
     :rtype: int
@@ -49,7 +50,7 @@ def is_password_breached(password: str = None, sha1_hash: str = None, add_paddin
         sha1_hash = sha1_hash.upper()
         hash_prefix = sha1_hash[0:5]
 
-    suffix_list = suffix_search(hash_prefix=hash_prefix, add_padding=add_padding)
+    suffix_list = suffix_search(hash_prefix=hash_prefix, add_padding=add_padding, timeout=timeout)
 
     # Since the full SHA-1 hash was provided, check to see if it was in the resultant hash suffixes returned.
     for hash_suffix in suffix_list:
@@ -62,7 +63,7 @@ def is_password_breached(password: str = None, sha1_hash: str = None, add_paddin
 
 
 @_require_user_agent
-def suffix_search(hash_prefix: str = None, add_padding: bool = False) -> list:
+def suffix_search(hash_prefix: str = None, add_padding: bool = False, timeout=5.0) -> list:
     """
     Returns a list of SHA-1 hash suffixes, consisting of the SHA-1 hash characters after position five,
     and the number of times that password hash was found in the HIBP database, colon separated.
@@ -89,6 +90,7 @@ def suffix_search(hash_prefix: str = None, add_padding: bool = False) -> list:
     order to prevent sniffing of response size to infer what hash prefix was searched. Entries which end in zero can be
     disregarded.
     :param hash_prefix: The first five characters of a SHA-1 hash. `str` type.
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     :return: A list of hash suffixes.
     :rtype: list
     """
@@ -102,7 +104,7 @@ def suffix_search(hash_prefix: str = None, add_padding: bool = False) -> list:
     _headers = pyHIBP_HEADERS
     _headers['Add-Padding'] = "true" if add_padding else None
 
-    resp = requests.get(url=uri, headers=_headers)
+    resp = requests.get(url=uri, headers=_headers, timeout=timeout)
     if resp.status_code != 200:
         # The HTTP Status should always be 200 for this request
         raise RuntimeError("Response from the endpoint was not HTTP200; this should not happen. Code was: {0}".format(resp.status_code))

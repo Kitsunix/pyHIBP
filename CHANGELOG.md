@@ -1,5 +1,10 @@
 pyHIBP Changelog
 ================
+v4.2.0 (In development...)
+------------------------
+- Adds a `timeout` value as a keyword argument to functions which hit the HIBP backend. The default value has been set to
+  `5.0`. Added as a [suggestion](https://gitlab.com/kitsunix/pyHIBP/pyHIBP/-/issues/8) from [Oskar Rosen](https://gitlab.com/oskar.rosen); thank you for the suggestion!
+
 v4.1.0 (2020-04-06)
 ------------------------
 - Adds the capability to request that the Pwned Passwords API return padding to the responses to calls made via
