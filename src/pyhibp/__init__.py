@@ -114,7 +114,12 @@ def _process_response(response) -> bool:
 
 @_require_api_key
 @_require_user_agent
-def get_account_breaches(account: str = None, domain: str = None, truncate_response: bool = False, include_unverified: bool = False) -> list:
+def get_account_breaches(
+        account: str = None,
+        domain: str = None,
+        truncate_response: bool = False,
+        include_unverified: bool = False,
+        timeout=5.0) -> list:
     """
     Gets breaches for a specified account from the HIBP system, optionally restricting the returned results
     to a specified domain.
@@ -126,6 +131,7 @@ def get_account_breaches(account: str = None, domain: str = None, truncate_respo
     :param truncate_response: If ``account`` is specified, truncates the response down to the breach names.
     Default False. `bool` type.
     :param include_unverified: If set to True, unverified breaches are included in the result. Default False. `bool` type
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     :return: A list object containing one or more dict objects, based on the information being requested,
     provided there was matching information. Boolean False returned if no information was found according to
     the HIBP API.
@@ -146,7 +152,7 @@ def get_account_breaches(account: str = None, domain: str = None, truncate_respo
         "truncateResponse": truncate_response,
         "includeUnverified": include_unverified,
     }
-    resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS)
+    resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS, timeout=timeout)
 
     if _process_response(response=resp):
         return resp.json()
@@ -155,12 +161,13 @@ def get_account_breaches(account: str = None, domain: str = None, truncate_respo
 
 
 @_require_user_agent
-def get_all_breaches(domain: str = None) -> list:
+def get_all_breaches(domain: str = None, timeout=5.0) -> list:
     """
     Returns a listing of all sites breached in the HIBP database.
 
     :param domain: Optional, default None. If specified, get all breaches for the domain with the specified name. `str` type.
-    :return: A list object containing one or more dict objects if breaches are present. Returns Boolean False
+    :return: A list object containing one or more dict objects if breaches are present. Returns Boolean False.
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     if ``domain`` is specified, but the resultant list would be length zero.
     :rtype: list
     """
@@ -169,7 +176,7 @@ def get_all_breaches(domain: str = None) -> list:
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACHES
     query_string_payload = {'domain': domain}
-    resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS)
+    resp = requests.get(url=uri, params=query_string_payload, headers=pyHIBP_HEADERS, timeout=timeout)
 
     # The API will return HTTP200 even if resp.json is length zero.
     if _process_response(response=resp) and len(resp.json()) > 0:
@@ -179,11 +186,12 @@ def get_all_breaches(domain: str = None) -> list:
 
 
 @_require_user_agent
-def get_single_breach(breach_name: str = None) -> dict:
+def get_single_breach(breach_name: str = None, timeout=5.0) -> dict:
     """
     Returns a single breach's information from the HIBP's database.
 
     :param breach_name: The breach to retrieve. Required. `str` type.
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     :return: A dict object containing the information for the specified breach name, if it exists in the HIBP
     database. Boolean False is returned if the specified breach was not found.
     :rtype: dict
@@ -192,7 +200,7 @@ def get_single_breach(breach_name: str = None) -> dict:
         raise AttributeError("The breach_name must be specified, and be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_BREACH_SINGLE + breach_name
-    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS, timeout=timeout)
 
     if _process_response(response=resp):
         return resp.json()
@@ -202,13 +210,14 @@ def get_single_breach(breach_name: str = None) -> dict:
 
 @_require_api_key
 @_require_user_agent
-def get_pastes(email_address: str = None) -> list:
+def get_pastes(email_address: str = None, timeout=5.0) -> list:
     """
     Retrieve all pastes for a specified email address.
 
     This function requires a HIBP API key to be set. See ``set_api_key()``.
 
     :param email_address: The email address to search. Required. `str` type.
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     :return: A list object containing one or more dict objects corresponding to the pastes the specified email
     address was found in. Boolean False returned if no pastes are detected for the given account.
     :rtype: list
@@ -217,7 +226,7 @@ def get_pastes(email_address: str = None) -> list:
         raise AttributeError("The email address supplied must be provided, and be a string.")
 
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_PASTES + email_address
-    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS, timeout=timeout)
 
     if _process_response(response=resp):
         return resp.json()
@@ -226,16 +235,17 @@ def get_pastes(email_address: str = None) -> list:
 
 
 @_require_user_agent
-def get_data_classes() -> list:
+def get_data_classes(timeout=5.0) -> list:
     """
     Retrieves all available data classes from the HIBP API.
 
+    :param timeout: The timeout value to be passed to the underlying `requests.get()` call. Default 5.0.
     :return: A list object containing available data classes, corresponding to attributes found in breaches.
     A given breach will have one or more of the data classes in the list.
     :rtype: list
     """
     uri = HIBP_API_BASE_URI + HIBP_API_ENDPOINT_DATA_CLASSES
-    resp = requests.get(url=uri, headers=pyHIBP_HEADERS)
+    resp = requests.get(url=uri, headers=pyHIBP_HEADERS, timeout=timeout)
 
     if _process_response(response=resp):
         return resp.json()

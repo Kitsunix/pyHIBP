@@ -1,5 +1,12 @@
 pyHIBP Changelog
 ================
+v4.2.0 (2021-03-28)
+------------------------
+- Adds a `timeout` value as a keyword argument to functions which hit the HIBP backend, so as to terminate connections
+  if they exceed a defined duration (the same as `requests.get(url=TARGET, timeout=VALUE)` would function). The default value
+  is set to `5.0`. With thanks to [Oskar Rosen](https://gitlab.com/oskar.rosen) for the
+  [suggestion](https://gitlab.com/kitsunix/pyHIBP/pyHIBP/-/issues/8)!
+
 v4.1.0 (2020-04-06)
 ------------------------
 - Adds the capability to request that the Pwned Passwords API return padding to the responses to calls made via
